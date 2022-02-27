@@ -1,0 +1,22 @@
+{
+    "os": "macOS-10.14.6-x86_64-i386-64bit",
+    "python": "3.9.7",
+    "heartbeatAt": "2022-02-15T16:45:15.325787",
+    "startedAt": "2022-02-15T16:45:05.377956",
+    "docker": null,
+    "cpu_count": 4,
+    "cuda": null,
+    "args": [],
+    "state": "running",
+    "program": "/Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge/train.py",
+    "codePath": "train.py",
+    "git": {
+        "remote": "https://github.com/OisinNolan/fakenewschallenge.git",
+        "commit": "cc69c35b015e4811cfafd1c2c35e9125843ec685"
+    },
+    "email": null,
+    "root": "/Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge",
+    "host": "pc-142-189.customer.ask4.lan",
+    "username": "Jeroen",
+    "executable": "/Users/Jeroen/anaconda3/envs/fnc/bin/python"
+}

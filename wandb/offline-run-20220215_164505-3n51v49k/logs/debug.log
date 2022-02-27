@@ -1,0 +1,33 @@
+2022-02-15 16:45:05,383 INFO    MainThread:19084 [wandb_setup.py:_flush():75] Loading settings from /Users/Jeroen/.config/wandb/settings
+2022-02-15 16:45:05,383 INFO    MainThread:19084 [wandb_setup.py:_flush():75] Loading settings from /Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge/wandb/settings
+2022-02-15 16:45:05,383 INFO    MainThread:19084 [wandb_setup.py:_flush():75] Loading settings from environment variables: {}
+2022-02-15 16:45:05,383 INFO    MainThread:19084 [wandb_setup.py:_flush():75] Inferring run settings from compute environment: {'program_relpath': 'train.py', 'program': '/Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge/train.py'}
+2022-02-15 16:45:05,383 INFO    MainThread:19084 [wandb_setup.py:_flush():75] Applying login settings: {'mode': 'offline'}
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [wandb_init.py:_log_setup():386] Logging user logs to /Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge/wandb/offline-run-20220215_164505-3n51v49k/logs/debug.log
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [wandb_init.py:_log_setup():387] Logging internal logs to /Users/Jeroen/Documents/Edinburgh/Studies/MLP/fakenewschallenge/wandb/offline-run-20220215_164505-3n51v49k/logs/debug-internal.log
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [wandb_init.py:init():420] calling init triggers
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [wandb_init.py:init():425] wandb.init called with sweep_config: {}
+config: {'test string': 'hello world', 'value': 0.5}
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [wandb_init.py:init():471] starting backend
+2022-02-15 16:45:05,384 INFO    MainThread:19084 [backend.py:_multiprocessing_setup():99] multiprocessing start_methods=spawn,fork,forkserver, using: spawn
+2022-02-15 16:45:05,400 INFO    MainThread:19084 [backend.py:ensure_launched():219] starting backend process...
+2022-02-15 16:45:05,416 INFO    MainThread:19084 [backend.py:ensure_launched():224] started backend process with pid: 19130
+2022-02-15 16:45:05,421 INFO    MainThread:19084 [wandb_init.py:init():480] backend started and connected
+2022-02-15 16:45:05,437 INFO    MainThread:19084 [wandb_init.py:init():550] updated telemetry
+2022-02-15 16:45:05,481 INFO    MainThread:19084 [wandb_init.py:init():624] starting run threads in backend
+2022-02-15 16:45:10,487 INFO    MainThread:19084 [wandb_run.py:_console_start():1827] atexit reg
+2022-02-15 16:45:10,492 INFO    MainThread:19084 [wandb_run.py:_redirect():1701] redirect: SettingsConsole.REDIRECT
+2022-02-15 16:45:10,496 INFO    MainThread:19084 [wandb_run.py:_redirect():1706] Redirecting console.
+2022-02-15 16:45:10,507 INFO    MainThread:19084 [wandb_run.py:_redirect():1762] Redirects installed.
+2022-02-15 16:45:10,507 INFO    MainThread:19084 [wandb_init.py:init():651] run started, returning control to user process
+2022-02-15 16:55:36,164 INFO    MainThread:19084 [wandb_run.py:_atexit_cleanup():1797] got exitcode: 0
+2022-02-15 16:55:36,205 INFO    MainThread:19084 [wandb_run.py:_restore():1769] restore
+2022-02-15 16:55:38,551 INFO    MainThread:19084 [wandb_run.py:_wait_for_finish():1929] got exit ret: 
+2022-02-15 16:55:38,663 INFO    MainThread:19084 [wandb_run.py:_wait_for_finish():1929] got exit ret: done: true
+exit_result {
+}
+local_info {
+}
+
+2022-02-15 16:55:40,903 INFO    MainThread:19084 [wandb_run.py:_append_history():2144] rendering history
+2022-02-15 16:55:40,905 INFO    MainThread:19084 [wandb_run.py:_append_summary():2102] rendering summary
