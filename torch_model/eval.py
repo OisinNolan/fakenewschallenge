@@ -1,35 +1,30 @@
-from torch.utils.data import DataLoader
-from dataset import FakeNewsDataset
+from torch.utils.data import DataLoader, Subset
+from dataset import FakeNewsDataset, STANCE_MAP
 from torchmodel import RelatedNet
 import numpy as np
 import seaborn as sns
 import pandas as pd
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
-train_data = FakeNewsDataset('combined_stances_train.csv', 'combined_bodies_train.csv')
-train_dataloader = DataLoader(train_data)
+N_subset = 1000
+
+train_data = FakeNewsDataset('train_stances.csv', 'train_bodies.csv')
+train_data_subset = Subset(train_data, list(range(N_subset)))
+train_dataloader = DataLoader(train_data_subset)
 
 model = RelatedNet()
 
-related = []
-pred = []
+data = np.zeros((N_subset,2))
+correct = 0
 
-idx = 1
-for (head, body), y in train_dataloader:
-    if idx > 250:
-        continue
-    idx = idx + 1
-    y_pred = model(head[0], body[0]) # for some reason head and body are tuples instead of strings 🤔
-    related.append(y_pred)
-    pred.append(1 if y < 3 else 0)
+for ((head, body), stance), idx in (zip(train_dataloader, range(N_subset))):
+    y_true = [1,0] if stance < 3 else [0,1]
+    y_pred = model(head[0], body[0])
+    
+    if (y_true == y_pred):
+        correct += 1
 
-related = np.array(related).reshape(-1, 1)
-pred = np.array(pred).reshape(-1, 1)
+    print(f"{correct}/{(idx+1)} = {correct / (idx+1)*100}%") # Live output
 
-data = np.hstack((related, pred))
-
-df = pd.DataFrame(data, columns=['similarity', 'related'])
-sns.displot(df, x='similarity', hue='related')
-plt.show()
-
-# print(int(y < 3 and y_pred[0] == 1)) # 1 if related and predicted related, 0 otherwise
+#print(correct / N_subset)

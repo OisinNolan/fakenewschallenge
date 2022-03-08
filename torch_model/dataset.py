@@ -4,6 +4,8 @@ import torch
 from torch.utils.data import Dataset
 import pandas as pd
 
+DATA_LOCATION = "../data"
+
 STANCE_MAP = {
     'agree':0,
     'disagree':1,
@@ -13,8 +15,8 @@ STANCE_MAP = {
 
 class FakeNewsDataset(Dataset):
     def __init__(self, stances_file=None, bodies_file=None):
-        self.stances = pd.read_csv(stances_file) if stances_file else None
-        self.bodies = pd.read_csv(bodies_file) if bodies_file else None
+        self.stances = pd.read_csv(f"{DATA_LOCATION}/{stances_file}") if stances_file else None
+        self.bodies = pd.read_csv(f"{DATA_LOCATION}/{bodies_file}") if bodies_file else None
 
     def set_df(self, stances_df, bodies_df):
         self.stances = stances_df
@@ -29,8 +31,6 @@ class FakeNewsDataset(Dataset):
         body = self.bodies[select]['articleBody'].values[0]
         return (headline, body), STANCE_MAP[stance]
 
-    
-
 if __name__ == "__main__":
-    training_data = FakeNewsDataset('train_stances.csv', 'train_bodies.csv')
+    training_data = FakeNewsDataset(f'{DATA_LOCATION}/train_stances.csv', f'{DATA_LOCATION}/train_bodies.csv')
     training_data.__getitem__(4)

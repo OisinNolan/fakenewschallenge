@@ -7,7 +7,7 @@ from nltk.tokenize import sent_tokenize
 import math
 
 K_PERC=0.25
-THETA=0.3
+THETA=0.4
 
 class RelatedNet(nn.Module):
     '''
@@ -32,6 +32,6 @@ class RelatedNet(nn.Module):
         # Return the average of the top K similarity scores
         k = max(1, math.floor(len(body)*self.k_perc))
         top_k_scores = np.sort(scores)[-k:]
-        # res = np.mean(top_k_scores) > self.theta
-        # return [int(res), int(not res)] # [1, 0] if score > theta, else [0, 1]
-        return np.mean(top_k_scores)
+
+        res = np.mean(top_k_scores) > self.theta
+        return [int(res), int(not res)] # [1, 0] if score > theta, else [0, 1]
