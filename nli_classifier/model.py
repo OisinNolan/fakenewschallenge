@@ -6,6 +6,7 @@ from sentence_transformers import SentenceTransformer
 SIM_DIM = 384
 NLI_DIM = 768
 NUM_CLASSES = 3
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class AgreemNet(nn.Module):
     def __init__(self):
@@ -31,10 +32,10 @@ class AgreemNet(nn.Module):
         N = len(bodies)
 
         # Compute embeddings
-        head_sim = torch.from_numpy(self.sim_encoder.encode(head))
-        body_sims = torch.from_numpy(self.sim_encoder.encode(bodies))
-        head_nli = torch.from_numpy(self.nli_encoder.encode(head))
-        body_nlis = torch.from_numpy(self.nli_encoder.encode(bodies))
+        head_sim = torch.from_numpy(self.sim_encoder.encode(head)).to(DEVICE)
+        body_sims = torch.from_numpy(self.sim_encoder.encode(bodies)).to(DEVICE)
+        head_nli = torch.from_numpy(self.nli_encoder.encode(head)).to(DEVICE)
+        body_nlis = torch.from_numpy(self.nli_encoder.encode(bodies)).to(DEVICE)
 
         # Attention layer
         attn_out, attn_weights = self.attention(head_sim.view(1, 1, SIM_DIM), body_sims.view(N, 1, SIM_DIM), body_nlis.view(N, 1, NLI_DIM))

@@ -8,6 +8,7 @@ from torch import nn
 
 BATCH_SIZE = 1
 LEARNING_RATE = 0.05
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
@@ -29,9 +30,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
 train_data = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
 train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE)
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model = AgreemNet()
-model.to(device)
+model.to(DEVICE)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
