@@ -5,6 +5,7 @@ from model import AgreemNet
 from nltk.tokenize import sent_tokenize
 import torch
 from torch import nn
+from tqdm import tqdm
 
 BATCH_SIZE = 1
 LEARNING_RATE = 0.05
@@ -12,7 +13,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, ((head, body), y) in enumerate(dataloader):
+    for batch, ((head, body), y) in tqdm(enumerate(dataloader)):
         body_sents = sent_tokenize(body[0])
         # Compute prediction and loss
         pred = model(head[0], body_sents).view(1, 3).to(DEVICE)
