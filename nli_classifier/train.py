@@ -15,8 +15,8 @@ def train_loop(dataloader, model, loss_fn, optimizer):
     for batch, ((head, body), y) in enumerate(dataloader):
         body_sents = sent_tokenize(body[0])
         # Compute prediction and loss
-        pred = model(head[0], body_sents).view(1, 3)
-        y.to(DEVICE)
+        pred = model(head[0], body_sents).view(1, 3).to(DEVICE)
+        y = y.to(DEVICE)
         loss = loss_fn(pred, y)
 
         # Backpropagation
