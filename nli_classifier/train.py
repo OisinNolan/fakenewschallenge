@@ -2,27 +2,35 @@ from dataset import FakeNewsDataset
 from torch.utils.data import DataLoader
 from dataset import FakeNewsDataset
 from model import AgreemNet 
+from nltk.tokenize import sent_tokenize
+import torch
+from torch import nn
+
+BATCH_SIZE = 1
+LEARNING_RATE = 0.05
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, ((head, body), y) in enumerate(dataloader):
-        print(batch, head, body, y)
-        # # Compute prediction and loss
-        # pred = model(X)
-        # loss = loss_fn(pred, y)
+        body_sents = sent_tokenize(body[0])
+        # Compute prediction and loss
+        pred = model(head[0], body_sents).view(1, 3)
+        loss = loss_fn(pred, y)
 
-        # # Backpropagation
-        # optimizer.zero_grad()
-        # loss.backward()
-        # optimizer.step()
+        # Backpropagation
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
 
-        # if batch % 100 == 0:
-        #     loss, current = loss.item(), batch * len(X)
-        #     print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+        if batch % 10 == 0:
+            loss, current = loss.item(), batch
+            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-train_data = FakeNewsDataset('combined_stances_train.csv', 'combined_bodies_train.csv', related_only=True)
-train_dataloader = DataLoader(train_data)
+train_data = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
+train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE)
 
 model = AgreemNet()
+loss_fn = nn.CrossEntropyLoss()
+optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
-train_loop(train_dataloader)
+train_loop(train_dataloader, model, loss_fn, optimizer)

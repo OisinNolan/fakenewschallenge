@@ -18,9 +18,16 @@ class AgreemNet(nn.Module):
 
     def forward(self, head, bodies):
         '''
-        head: string
-        bodies: list of strings
+        H: (N,)
+        B: (N, M,)
         '''
+        # How can we batchify this when M varies? Should we use some sort of padding?
+        # Or would padding slow us down
+        # It seems that encoding all the bodies in the batch at once could help speed up
+        # If we have a list of how many sentences in each body we could reconstruct
+        #       a flattened set of bodies. 
+        # Seems like we can also provide key_padding_mask to MultiHeadAttention
+        # If we first add padding then we can flatten and unflatten without a for-loop
         N = len(bodies)
 
         # Compute embeddings
@@ -37,4 +44,4 @@ class AgreemNet(nn.Module):
         reduced_head = torch.matmul(head_nli, self.nli_head_weight).view(1, SIM_DIM)
         catted = torch.cat((attn_out.view(SIM_DIM), reduced_head.view(SIM_DIM), F.cosine_similarity(attn_out, reduced_head)))
         logits = torch.matmul(catted, self.fully_connected)
-        return F.softmax(logits)
+        return F.softmax(logits, dim=0)
