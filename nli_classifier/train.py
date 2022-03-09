@@ -1,20 +1,21 @@
 from dataset import FakeNewsDataset
 from torch.utils.data import DataLoader
 from dataset import FakeNewsDataset
-from model import AgreemNet 
-from nltk.tokenize import sent_tokenize
+from model import AgreemNet
+from util import pad_tokenize 
 import torch
 from torch import nn
 
-BATCH_SIZE = 1
+
+BATCH_SIZE = 3
 LEARNING_RATE = 0.05
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, ((head, body), y) in enumerate(dataloader):
-        body_sents = sent_tokenize(body[0])
+    for batch, ((H, B), y) in enumerate(dataloader):
+        B_pad = pad_tokenize(B)
         # Compute prediction and loss
-        pred = model(head[0], body_sents).view(1, 3)
+        pred = model(H, B_pad)
         loss = loss_fn(pred, y)
 
         # Backpropagation
