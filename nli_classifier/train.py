@@ -5,18 +5,20 @@ from model import AgreemNet
 from util import pad_tokenize 
 import torch
 from torch import nn
+from tqdm import tqdm
 
 
 BATCH_SIZE = 10
 LEARNING_RATE = 0.05
+DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, ((H, B), y) in enumerate(dataloader):
         B_pad = pad_tokenize(B)
         # Compute prediction and loss
-        pred = model(H, B_pad)
-        loss = loss_fn(pred, y)
+        pred = model(H, B_pad).to(DEVICE)
+        loss = loss_fn(pred, y.to(DEVICE))
 
         # Backpropagation
         optimizer.zero_grad()
@@ -31,6 +33,8 @@ train_data = FakeNewsDataset('../data/combined_stances_train.csv', '../data/comb
 train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE)
 
 model = AgreemNet()
+model.to(DEVICE)
+
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
