@@ -7,7 +7,7 @@ import torch
 from torch import nn
 
 
-BATCH_SIZE = 3
+BATCH_SIZE = 10
 LEARNING_RATE = 0.05
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -23,9 +23,9 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss.backward()
         optimizer.step()
 
-        if batch % 10 == 0:
-            loss, current = loss.item(), batch
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+        # if batch % 1 == 0:
+        loss, current = loss.item(), (batch * BATCH_SIZE)
+        print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
 train_data = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
 train_dataloader = DataLoader(train_data, batch_size=BATCH_SIZE)
