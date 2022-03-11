@@ -17,7 +17,7 @@ class AgreemNet(nn.Module):
         self.nli_encoder = SentenceTransformer('sentence-transformers/nli-distilroberta-base-v2')
         self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1)
         self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
-        self.classifier_fully_connected = torch.nn.Linear(SIM_DIM * 2, NUM_CLASSES)
+        self.classifier_fully_connected = torch.nn.Linear(1 + (SIM_DIM * 2), NUM_CLASSES)
 
     def encode_(self, encoder, embed_dim, B_flat):
         '''
@@ -57,6 +57,6 @@ class AgreemNet(nn.Module):
 
         # Linear transform head_nli to be same dimension as attn_out
         reduced_head = self.reduce_head(head_nli)
-        catted = torch.cat((attn_out.squeeze(), reduced_head), dim=1)
+        catted = torch.cat((attn_out.squeeze(), reduced_head, F.cosine_similarity(attn_out.squeeze(), reduced_head).view(batch_size, 1)), dim=1)
         logits = self.classifier_fully_connected(catted)
-        return F.softmax(logits, dim=0)
+        return F.softmax(logits, dim=1)
