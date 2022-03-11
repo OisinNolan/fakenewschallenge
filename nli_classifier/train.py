@@ -16,7 +16,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
-    for batch, ((H, B), y) in enumerate(dataloader):
+    for batch, ((H, B), y) in tqdm(enumerate(dataloader)):
         B_pad = pad_tokenize(B)
         # Compute prediction and loss
         pred = model(H, B_pad).to(DEVICE)
