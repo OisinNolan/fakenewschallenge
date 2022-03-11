@@ -59,4 +59,4 @@ class AgreemNet(nn.Module):
         reduced_head = self.reduce_head(head_nli)
         catted = torch.cat((attn_out.squeeze(), reduced_head), dim=1)
         logits = self.classifier_fully_connected(catted)
-        return F.softmax(logits, dim=0)
+        return F.softmax(logits, dim=1)
