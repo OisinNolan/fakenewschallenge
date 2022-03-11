@@ -8,11 +8,20 @@ import torch
 from torch import nn
 from tqdm import tqdm
 import math
+import wandb
+
+wandb.init(project="first-tests", entity="mlpbros")
 
 EPOCHS = 10
 BATCH_SIZE = 64
-LEARNING_RATE = 0.1
+LEARNING_RATE = 0.05
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+wandb.config = {
+    "learning_rate": LEARNING_RATE,
+    "epochs": EPOCHS,
+    "batch_size": BATCH_SIZE,
+}
 
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
@@ -30,6 +39,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         # if batch % 1 == 0:
         loss, current = loss.item(), (batch * BATCH_SIZE)
         print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+        wandb.log({"training-loss": loss})
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -60,9 +70,14 @@ def test_loop(dataloader, model, loss_fn):
     print("Per-class avg:")
     print(f"{[correct[i] / class_size[i] for i in class_size.keys()]}")
     print(f"Avg loss: {test_loss:>8f}\n")
+    
+    wandb.log({"test-loss": test_loss})
+    wandb.log({
+        f'class-{i}':correct[i] / class_size[i] for i in class_size.keys()
+    })
 
 dataset = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
-SUBSET_SIZE = 128 # len(dataset)
+SUBSET_SIZE = len(dataset)
 
 # Partition dataset into train and val sets
 dataset_size = SUBSET_SIZE
