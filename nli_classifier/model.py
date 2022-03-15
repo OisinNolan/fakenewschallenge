@@ -60,7 +60,7 @@ class AgreemNet(nn.Module):
 
         # Get top k similar (attended) sentences 
         _, idx = torch.topk(attn_weights, k=TOPK)
-        topk_sims = torch.zeros((batch_size, TOPK, SIM_DIM))
+        topk_sims = torch.zeros((batch_size, TOPK, SIM_DIM)).to(DEVICE)
         for i in range(idx.shape[0]):
             topk_sims[i] = torch.index_select(body_sims[i], 0, idx.squeeze()[i])
 
