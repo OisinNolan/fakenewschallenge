@@ -63,7 +63,7 @@ def test_loop(dataloader, model, loss_fn):
     print(f"{[correct[i] / class_size[i] for i in class_size.keys()]}")
     print(f"Avg loss: {test_loss:>8f}\n")
 
-dataset = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
+dataset = FakeNewsDataset('data/combined_stances_train.csv', 'data/combined_bodies_train.csv', related_only=True)
 
 # Partition dataset into train and val sets
 dataset_size = len(dataset)
@@ -81,4 +81,5 @@ model.to(DEVICE)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
-test_loop(val_dataloader, model, loss_fn)
+# test_loop(val_dataloader, model, loss_fn)
+train_loop(val_dataloader, model, loss_fn, optimizer)
