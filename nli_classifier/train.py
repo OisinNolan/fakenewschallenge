@@ -12,7 +12,7 @@ import wandb
 
 wandb.init(project="first-tests", entity="mlpbros")
 
-EPOCHS = 10
+EPOCHS = 3
 BATCH_SIZE = 64
 LEARNING_RATE = 0.05
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
