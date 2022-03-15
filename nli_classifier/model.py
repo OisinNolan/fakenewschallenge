@@ -43,8 +43,8 @@ class AgreemNet(nn.Module):
         B_flat = reduce(lambda x, y: x+y, B)
 
         # Compute embeddings
-        head_sim = torch.from_numpy(self.sim_encoder.encode(H)).to(DEVICE)
-        body_sims = self.encode_(self.sim_encoder, SIM_DIM, B_flat).view(batch_size, sent_len, SIM_DIM).to(DEVICE)
+        head_sim = torch.from_numpy(self.sim_encoder.encode(H)).to(DEVICE) * 50
+        body_sims = self.encode_(self.sim_encoder, SIM_DIM, B_flat).view(batch_size, sent_len, SIM_DIM).to(DEVICE) * 50
         head_nli = torch.from_numpy(self.nli_encoder.encode(H)).to(DEVICE)
         body_nlis = self.encode_(self.nli_encoder, NLI_DIM, B_flat).view(batch_size, sent_len, NLI_DIM).to(DEVICE)
 
