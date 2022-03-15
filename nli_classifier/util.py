@@ -10,7 +10,7 @@ def pad_truncate(X, K=MAX_LEN):
     '''
     if len(X) > K:
         X = X[:K]
-    padding = ['[PAD]' for i in range(max(0, K - len(X)))]
+    padding = ['[PAD]' for _ in range(max(0, K - len(X)))]
     return X + padding
 
 def pad_tokenize(X):

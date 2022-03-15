@@ -15,7 +15,7 @@ class AgreemNet(nn.Module):
         super(AgreemNet, self).__init__()
         self.sim_encoder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
         self.nli_encoder = SentenceTransformer('sentence-transformers/nli-distilroberta-base-v2')
-        self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1)
+        self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=4)
         self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
         self.classifier_fully_connected = torch.nn.Linear(1 + (SIM_DIM * 2), NUM_CLASSES)
 
@@ -52,7 +52,8 @@ class AgreemNet(nn.Module):
         attn_out, attn_weights = self.attention(
             head_sim.view(1, batch_size, SIM_DIM),
             body_sims.view(sent_len, batch_size, SIM_DIM),
-            body_nlis.view(sent_len, batch_size, NLI_DIM)
+            body_nlis.view(sent_len, batch_size, NLI_DIM),
+            key_padding_mask = torch.from_numpy(np.array(B) == '[PAD]')
         )
 
         # Linear transform head_nli to be same dimension as attn_out
