@@ -10,6 +10,7 @@ NLI_DIM = 768
 NUM_CLASSES = 3
 TOPK = 5
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+SIM_SCALAR = 50
 
 class AgreemNet(nn.Module):
     def __init__(self):
@@ -44,8 +45,8 @@ class AgreemNet(nn.Module):
         B_flat = reduce(lambda x, y: x+y, B)
 
         # Compute embeddings
-        head_sim = torch.from_numpy(self.sim_encoder.encode(H)).to(DEVICE) * 50
-        body_sims = self.encode_(self.sim_encoder, SIM_DIM, B_flat).view(batch_size, sent_len, SIM_DIM).to(DEVICE) * 50
+        head_sim = torch.from_numpy(self.sim_encoder.encode(H)).to(DEVICE) * SIM_SCALAR
+        body_sims = self.encode_(self.sim_encoder, SIM_DIM, B_flat).view(batch_size, sent_len, SIM_DIM).to(DEVICE) * SIM_SCALAR
         head_nli = torch.from_numpy(self.nli_encoder.encode(H)).to(DEVICE)
         body_nlis = self.encode_(self.nli_encoder, NLI_DIM, B_flat).view(batch_size, sent_len, NLI_DIM).to(DEVICE)
 
