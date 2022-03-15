@@ -54,7 +54,7 @@ class AgreemNet(nn.Module):
             head_sim.view(1, batch_size, SIM_DIM),
             body_sims.view(sent_len, batch_size, SIM_DIM),
             body_nlis.view(sent_len, batch_size, NLI_DIM),
-            key_padding_mask = torch.from_numpy(np.array(B) == '[PAD]')
+            key_padding_mask = torch.from_numpy(np.array(B) == '[PAD]').to(DEVICE)
         )
 
         # Linear transform head_nli to be same dimension as attn_out
