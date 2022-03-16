@@ -59,7 +59,7 @@ class AgreemNet(nn.Module):
         #     body_nlis.view(sent_len, batch_size, NLI_DIM)
         # )
 
-        cosines = torch.zeros((batch_size, sent_len))
+        cosines = torch.zeros((batch_size, sent_len)).to(DEVICE)
         for i in range(batch_size):
             cosines[i] = F.cosine_similarity(head_nli[i].unsqueeze(0).repeat(5, 1), body_nlis[i])
 
