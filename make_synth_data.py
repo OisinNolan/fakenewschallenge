@@ -89,6 +89,18 @@ HEAD = 0
 BODY_ID = 1
 STANCE = 2
 
+'''
+Sentence negation algorithm:
+1) If the word 'not' is in the text, simply remove it
+2) If the root verb has an auxiliary verb, add 'not' after it
+3) If the root verb has a set of antonyms, choose the antonym that
+   yields the sentence with the highest probability, according to GPT-2
+
+Notes:
+- Can behave weirdly with *n't words due to tokenization
+- Seems to be most reliable for rules (1) and (2), (3) is somewhat hit-or-miss
+'''
+
 # Read training stances
 with open('./data/combined_stances_train.csv') as f:
     for i, row in enumerate(csv.reader(f)):
