@@ -66,5 +66,6 @@ class AgreemNet(nn.Module):
         # Linear transform head_nli to be same dimension as attn_out
         catted = torch.cat((head_nli, body_nlis.flatten(1), cosines), dim=1)
         hidden_layer = self.hidden(catted)
-        logits = self.classifier_fully_connected(hidden_layer)
+        activations = F.relu(hidden_layer)
+        logits = self.classifier_fully_connected(activations)
         return F.softmax(logits, dim=1)

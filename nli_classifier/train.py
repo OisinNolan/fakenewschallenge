@@ -24,6 +24,7 @@ wandb.config = {
 }
 
 def train_loop(dataloader, model, loss_fn, optimizer):
+    model.train()
     size = len(dataloader.dataset)
     for batch, ((H, B), y) in tqdm(enumerate(dataloader)):
         B_pad = pad_tokenize(B)
@@ -40,6 +41,11 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss, current = loss.item(), (batch * BATCH_SIZE)
         print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
         wandb.log({"training-loss": loss})
+
+        if (batch % 50 == 0):
+            # Eval
+            model.eval()
+            test_loop(val_dataloader, model, loss_fn)
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -92,14 +98,13 @@ val_dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, sam
 model = AgreemNet()
 model.to(DEVICE)
 
+# for name, param in model.named_parameters():
+#     if "encoder" in name:
+#         param.requires_grad = False
+
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
 for epoch in range(EPOCHS):
     # Train
-    model.train()
     train_loop(train_dataloader, model, loss_fn, optimizer)
-
-    # Eval
-    model.eval()
-    test_loop(val_dataloader, model, loss_fn)
