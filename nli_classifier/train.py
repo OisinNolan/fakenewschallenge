@@ -10,7 +10,7 @@ from tqdm import tqdm
 import math
 import wandb
 
-wandb.init(project="going-deeper-tests", entity="mlpbros")
+wandb.init(project="first-tests", entity="mlpbros")
 
 EPOCHS = 10
 BATCH_SIZE = 64
