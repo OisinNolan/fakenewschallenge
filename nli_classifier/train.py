@@ -102,5 +102,5 @@ model.to(DEVICE)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
-for epoch in range(EPOCHS)
+for epoch in range(EPOCHS):
     train_loop(train_dataloader, model, loss_fn, optimizer)
