@@ -15,6 +15,7 @@ wandb.init(project="first-tests", entity="mlpbros")
 EPOCHS = 10
 BATCH_SIZE = 64
 LEARNING_RATE = 0.05
+EVAL_FREQ = 50
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 wandb.config = {
@@ -26,6 +27,7 @@ wandb.config = {
 def train_loop(dataloader, model, loss_fn, optimizer):
     size = len(dataloader.dataset)
     for batch, ((H, B), y) in tqdm(enumerate(dataloader)):
+        model.train()
         B_pad = pad_tokenize(B)
         # Compute prediction and loss
         pred = model(H, B_pad).to(DEVICE)
@@ -40,6 +42,11 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         loss, current = loss.item(), (batch * BATCH_SIZE)
         print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
         wandb.log({"training-loss": loss})
+
+        if (batch % EVAL_FREQ == 0):
+            # Eval
+            model.eval()
+            test_loop(val_dataloader, model, loss_fn)
 
 def test_loop(dataloader, model, loss_fn):
     size = len(dataloader.dataset)
@@ -95,11 +102,5 @@ model.to(DEVICE)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
 
-for epoch in range(EPOCHS):
-    # Train
-    model.train()
+for epoch in range(EPOCHS)
     train_loop(train_dataloader, model, loss_fn, optimizer)
-
-    # Eval
-    model.eval()
-    test_loop(val_dataloader, model, loss_fn)
