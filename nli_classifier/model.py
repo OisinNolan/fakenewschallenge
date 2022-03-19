@@ -11,6 +11,8 @@ NUM_CLASSES = 3
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 SIM_SCALAR = 50
 
+FC_DIMS = [1 + (SIM_DIM * 2), 1024, 512, NUM_CLASSES]
+
 class AgreemNet(nn.Module):
     def __init__(self):
         super(AgreemNet, self).__init__()
@@ -18,7 +20,10 @@ class AgreemNet(nn.Module):
         self.nli_encoder = SentenceTransformer('sentence-transformers/nli-distilroberta-base-v2')
         self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1)
         self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
-        self.classifier_fully_connected = torch.nn.Linear(1 + (SIM_DIM * 2), NUM_CLASSES)
+        
+        self.fc1 = torch.nn.Linear(FC_DIMS[0], FC_DIMS[1])
+        self.fc2 = torch.nn.Linear(FC_DIMS[1], FC_DIMS[2])
+        self.fc3 = torch.nn.Linear(FC_DIMS[2], FC_DIMS[3])
 
     def encode_(self, encoder, embed_dim, B_flat):
         '''
@@ -58,6 +63,13 @@ class AgreemNet(nn.Module):
 
         # Linear transform head_nli to be same dimension as attn_out
         reduced_head = self.reduce_head(head_nli)
-        catted = torch.cat((attn_out.squeeze(), reduced_head, F.cosine_similarity(attn_out.squeeze(), reduced_head).view(batch_size, 1)), dim=1)
-        logits = self.classifier_fully_connected(catted)
-        return F.softmax(logits, dim=1)
+        xx = torch.cat((attn_out.squeeze(), reduced_head, F.cosine_similarity(attn_out.squeeze(), reduced_head).view(batch_size, 1)), dim=1)
+        
+        xx = self.fc1(xx)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        xx = F.relu(xx)
+        xx = self.fc3(xx)
+
+        output = F.softmax(xx, dim=1)
+        return output

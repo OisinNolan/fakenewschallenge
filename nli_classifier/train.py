@@ -5,12 +5,12 @@ from dataset import FakeNewsDataset
 from model import AgreemNet
 from util import pad_tokenize 
 import torch
-from torch import nn
+from torch import batch_norm, nn
 from tqdm import tqdm
 import math
 import wandb
 
-wandb.init(project="first-tests", entity="mlpbros")
+wandb.init(project="going-deeper-tests", entity="mlpbros")
 
 EPOCHS = 10
 BATCH_SIZE = 64
@@ -19,9 +19,9 @@ EVAL_FREQ = 50
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 wandb.config = {
-    "learning_rate": LEARNING_RATE,
-    "epochs": EPOCHS,
-    "batch_size": BATCH_SIZE,
+   "learning_rate": LEARNING_RATE,
+   "epochs": EPOCHS,
+   "batch_size": BATCH_SIZE,
 }
 
 def train_loop(dataloader, model, loss_fn, optimizer):
@@ -44,11 +44,11 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         wandb.log({"training-loss": loss})
 
         if (batch % EVAL_FREQ == 0):
-            # Eval
             model.eval()
-            test_loop(val_dataloader, model, loss_fn)
+            val_loop(val_dataloader, model, loss_fn)
 
-def test_loop(dataloader, model, loss_fn):
+def val_loop(dataloader, model, loss_fn):
+    print("*"*20,"VALIDATION","*"*20)
     size = len(dataloader.dataset)
     num_batches = len(dataloader)
     test_loss = 0
@@ -78,12 +78,13 @@ def test_loop(dataloader, model, loss_fn):
     print(f"{[correct[i] / class_size[i] for i in class_size.keys()]}")
     print(f"Avg loss: {test_loss:>8f}\n")
     
-    wandb.log({"test-loss": test_loss})
+    wandb.log({"val-loss": test_loss})
     wandb.log({
-        f'class-{i}':correct[i] / class_size[i] for i in class_size.keys()
+       f'class-{i}':correct[i] / class_size[i] for i in class_size.keys()
     })
+    print("*"*50)
 
-dataset = FakeNewsDataset('../data/combined_stances_train.csv', '../data/combined_bodies_train.csv', related_only=True)
+dataset = FakeNewsDataset('./data/combined_stances_train.csv', './data/combined_bodies_train.csv', related_only=True)
 SUBSET_SIZE = len(dataset)
 
 # Partition dataset into train and val sets
@@ -98,9 +99,14 @@ val_dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, sam
 
 model = AgreemNet()
 model.to(DEVICE)
+wandb.watch(model, log_freq=100)
+
+for name, param in model.named_parameters():
+    if "encoder" in name:
+        param.requires_grad = False
 
 loss_fn = nn.CrossEntropyLoss()
-optimizer = torch.optim.SGD(model.parameters(), lr=LEARNING_RATE)
+optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
 
 for epoch in range(EPOCHS):
     train_loop(train_dataloader, model, loss_fn, optimizer)
