@@ -153,6 +153,7 @@ cython_debug/
 
 # PyCache
 .pyc
+/__pycache__
 
 # wandb
 /wandb
