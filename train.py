@@ -10,11 +10,11 @@ from tqdm import tqdm
 import math
 import wandb
 
-wandb.init(project="first-tests", entity="mlpbros")
+# wandb.init(project="first-tests", entity="mlpbros")
 
 EPOCHS = 10
-BATCH_SIZE = 64
-LEARNING_RATE = 0.05
+BATCH_SIZE = 2
+LEARNING_RATE = 0.001
 EVAL_FREQ = 50
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -43,7 +43,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
         wandb.log({"training-loss": loss})
 
-        if (batch % EVAL_FREQ == 0):
+        if (batch % EVAL_FREQ == 0 and False):
             model.eval()
             val_loop(val_dataloader, model, loss_fn)
 
@@ -99,11 +99,13 @@ val_dataloader = torch.utils.data.DataLoader(dataset, batch_size=BATCH_SIZE, sam
 
 model = AgreemNet()
 model.to(DEVICE)
-wandb.watch(model, log_freq=100)
+# wandb.watch(model, log_freq=1)
 
 for name, param in model.named_parameters():
     if "encoder" in name:
         param.requires_grad = False
+
+    print(name)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
