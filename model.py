@@ -126,6 +126,52 @@ class AgreemFlat(nn.Module):
 
         return output
 
+class AgreemDeep(nn.Module):
+    def __init__(self, kk=5):
+        super(AgreemDeep, self).__init__()
+        self.kk = kk
+        self.fc1 = torch.nn.Linear((kk + 1) * NLI_DIM, HIDDEN_DIMS[0])
+        self.fc2 = torch.nn.Linear(HIDDEN_DIMS[0], HIDDEN_DIMS[0])
+        self.fc3 = torch.nn.Linear(HIDDEN_DIMS[0], HIDDEN_DIMS[0])
+        self.fc4 = torch.nn.Linear(HIDDEN_DIMS[0], HIDDEN_DIMS[1])
+        self.fc5 = torch.nn.Linear(HIDDEN_DIMS[1], NUM_CLASSES)
+
+    def forward(self, sim_stance_emb, nli_stance_emb, sim_body_emb, nli_body_emb):
+        '''
+        TODO
+        '''
+        batch_size = sim_stance_emb.shape[0]
+        assert batch_size == nli_stance_emb.shape[0]
+        assert batch_size == sim_body_emb.shape[0]
+        assert batch_size == nli_body_emb.shape[0]
+        
+        sims = torch.bmm(
+            sim_stance_emb.unsqueeze(1),
+            torch.transpose(sim_body_emb,1,2)
+        ).squeeze()
+
+        top_k = torch.topk(sims,k=self.kk,dim=1)
+        
+        nli_body_emb_top_k = torch.transpose(
+            nli_body_emb[np.arange(batch_size),top_k.indices.T],
+        dim0=0,dim1=1)
+
+        nli_body_emb_top_k_flat = nli_body_emb_top_k.flatten(start_dim=1)
+
+        xx = torch.hstack([nli_stance_emb, nli_body_emb_top_k_flat])
+        
+        xx = self.fc1(xx)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        xx = F.relu(xx)
+        xx = self.fc3(xx)
+        xx = F.relu(xx)
+        xx = self.fc4(xx)
+        xx = F.relu(xx)
+        xx = self.fc5(xx)
+        output = xx
+        return output
+
 # class SimDeep
 
 # class AgreeDeep(nn.Module): 
