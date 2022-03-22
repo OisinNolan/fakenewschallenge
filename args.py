@@ -16,8 +16,7 @@ def create_parser() -> ArgumentParser:
         "-e",
         "--epochs",
         type=int,
-        nargs='+',
-        default=[5],
+        default=5,
         help="Number of epochs to perform",
     )
 
@@ -25,8 +24,7 @@ def create_parser() -> ArgumentParser:
         "-bs",
         "--batch_size",
         type=int,
-        nargs=1,
-        default=[64],
+        default=64,
         help="Batch size for training and validation loops",
     )
 
@@ -34,8 +32,7 @@ def create_parser() -> ArgumentParser:
         "-lr",
         "--learning_rate",
         type=float,
-        nargs=1,
-        default=[0.01],
+        default=0.01,
         help="Learning rate for training loop",
     )
 
@@ -52,8 +49,7 @@ def create_parser() -> ArgumentParser:
         "-k",
         "--top_k",
         type=int,
-        nargs=1,
-        default=[5],
+        default=5,
         help="Top-K similar embeddings used in AgreemDeep",
     )
 
