@@ -98,7 +98,6 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
 
     time_elapsed = time() - since
     print(f"Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s")
-    print(f"Best Loss: {best_loss:4f}")
 
     model.load_state_dict(best_model)
     return model
