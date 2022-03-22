@@ -119,7 +119,8 @@ def main():
     ##
     dataset = FakeNewsEncodedDataset(
         stances_file="data/train_stances.csv.stance.dat",
-        bodies_file="data/train_bodies.csv.body.dat"
+        bodies_file="data/train_bodies.csv.body.dat",
+        no_unrelated=True
     )
     dataset_size = len(dataset)
     dataset_indices = list(range(dataset_size))
