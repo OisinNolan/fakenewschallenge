@@ -52,21 +52,15 @@ def main():
     sim_encoder = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
     nli_encoder = SentenceTransformer('sentence-transformers/nli-distilroberta-base-v2')
 
-    # process_file("data/train_bodies.csv", encoder, dim, type="body")
-    # process_file("data/train_stances.csv", encoder, dim, type="stance")
-
-    # process_file("data/train_bodies.csv", encoder, dim, type="body")
-    # process_file("data/train_stances.csv", encoder, dim, type="stance")
-
     process_file(
-        filename="data/custom/train_bodies.csv",
+        filename="data/train_bodies.csv",
         sim_encoder=sim_encoder,
         nli_encoder=nli_encoder,
         type="body",
     )
     
     process_file(
-        filename="data/custom/train_stances.csv",
+        filename="data/train_stances.csv",
         sim_encoder=sim_encoder,
         nli_encoder=nli_encoder,
         type="stance",
