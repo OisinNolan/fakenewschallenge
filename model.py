@@ -86,3 +86,32 @@ class AgreemNet(nn.Module):
 
         output = F.softmax(xx, dim=1)
         return output
+
+
+class AgreeFlat(nn.Module):
+    def __init__(self, kk=5):
+        super(AgreeFlat, self).__init__()
+        
+        self.fc1 = torch.nn.Linear(FC_DIMS[0], FC_DIMS[1])
+        self.fc2 = torch.nn.Linear(FC_DIMS[1], FC_DIMS[2])
+
+    def forward(self, H, B_sim, B_nli):
+        '''
+        H: List of headline strings
+        B: List of padded lists of body sentence strings
+        '''
+        
+        batch_size = len(B)
+        
+        # Take first k (replace with top k)
+        B_flat = B.flatten(dim=1)
+        xx = torch.cat()
+
+        output = F.softmax(xx, dim=1)
+        return output
+
+# class SimDeep
+
+# class AgreeDeep(nn.Module): 
+
+# class AgreeAttn(nn.Module): 
