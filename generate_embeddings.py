@@ -29,7 +29,7 @@ def process_file(filename, sim_encoder: SentenceTransformer, nli_encoder: Senten
         # Iterate over each row in the csv using reader object
         for ii, row in tqdm(enumerate(csv_reader)):
             if (type == "stance"):
-                body_id = row[STANCE_ID]
+                body_id = int(row[STANCE_ID])
                 sim_embedding = sim_encoder.encode(row[STANCE_TEXT])
                 nli_embedding = nli_encoder.encode(row[STANCE_TEXT])
                 stance = row[STANCE_LABEL]
@@ -37,7 +37,7 @@ def process_file(filename, sim_encoder: SentenceTransformer, nli_encoder: Senten
                 to_dump = [body_id, sim_embedding, nli_embedding, stance]
             
             elif (type == "body"):
-                body_id = row[BODY_ID]
+                body_id = int(row[BODY_ID])
                 sentences = pad_tokenize([row[BODY_TEXT]])[0]
                 sim_embeddings = dont_encode_pad(sim_encoder, SIM_DIM, sentences)
                 nli_embeddings = dont_encode_pad(nli_encoder, NLI_DIM, sentences)
