@@ -18,11 +18,11 @@ VAL_CUTOFF = 0.7
 
 wandb.init(project="yo-am-i-going-crazy", entity="mlpbros")
 
-wandb.config = {
+wandb.config.update({
    "learning_rate": LEARNING_RATE,
    "epochs": EPOCHS,
    "batch_size": BATCH_SIZE,
-}
+})
 
 def train(dataloader, model, loss_fn, optimizer):
     for batch, (embeddings, stance) in tqdm(enumerate(dataloader)):
