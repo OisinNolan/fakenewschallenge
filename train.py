@@ -132,11 +132,17 @@ def main():
 
     model = ...
     if (config.model == "AgreemFlat"):
-        model = AgreemFlat().to(DEVICE)
-    elif (config.model == "AgreemDeep"):
-        model = AgreemDeep().to(DEVICE)
-    elif (config.model == "AgreemNet"):
         ...
+    elif (config.model == "AgreemDeep"):
+        model = AgreemDeep(
+            kk=config.top_k,
+            hdim_1=config.hidden_dim[0],
+            hdim_2=config.hidden_dim[1],
+        ).to(DEVICE)
+    elif (config.model == "AgreemNet"):
+        model = AgreemNet(
+            hdim=config.hidden_dim[0],
+        ).to(DEVICE)
     else:
         assert False # Shouldn't get here
 
