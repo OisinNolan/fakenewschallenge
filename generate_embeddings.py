@@ -3,7 +3,7 @@ from torch import embedding
 from dataset import FakeNewsDataset
 from csv import reader
 import pickle
-from util import pad_tokenize, dont_encode_pad
+from util import pad_tokenize, encode_without_pad
 from tqdm import tqdm
 import numpy as np
 
@@ -39,8 +39,8 @@ def process_file(filename, sim_encoder: SentenceTransformer, nli_encoder: Senten
             elif (type == "body"):
                 body_id = int(row[BODY_ID])
                 sentences = pad_tokenize([row[BODY_TEXT]])[0]
-                sim_embeddings = dont_encode_pad(sim_encoder, SIM_DIM, sentences)
-                nli_embeddings = dont_encode_pad(nli_encoder, NLI_DIM, sentences)
+                sim_embeddings = encode_without_pad(sim_encoder, SIM_DIM, sentences)
+                nli_embeddings = encode_without_pad(nli_encoder, NLI_DIM, sentences)
 
                 to_dump = [body_id, sim_embeddings, nli_embeddings]
 

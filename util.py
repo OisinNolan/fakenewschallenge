@@ -22,7 +22,10 @@ def pad_tokenize(X):
     X_tok = list(map(sent_tokenize, X))
     return list(map(pad_truncate, X_tok))
 
-def dont_encode_pad(encoder: SentenceTransformer, embed_dim, sents):
+def encode_without_pad(encoder: SentenceTransformer, embed_dim, sents):
+    '''
+    Encodes given sentences but ignores [PAD] elements
+    '''
     return np.array(list(map(
         lambda sent:
             encoder.encode(sent) if sent != '[PAD]' else np.zeros((embed_dim), dtype=np.float32), 
