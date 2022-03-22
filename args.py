@@ -16,32 +16,32 @@ def create_parser() -> ArgumentParser:
         "-e",
         "--epochs",
         type=int,
-        nargs=1,
-        default=5,
+        nargs='+',
+        default=[5],
         help="Number of epochs to perform",
     )
 
     parser.add_argument(
         "-bs",
-        "--batch-size",
+        "--batch_size",
         type=int,
         nargs=1,
-        default=64,
+        default=[64],
         help="Batch size for training and validation loops",
     )
 
     parser.add_argument(
         "-lr",
-        "--learning-rate",
+        "--learning_rate",
         type=float,
         nargs=1,
-        default=0.01,
+        default=[0.01],
         help="Learning rate for training loop",
     )
 
     parser.add_argument(
         "-hd",
-        "--hidden-dims",
+        "--hidden_dims",
         type=int,
         nargs="*",
         default=[1024, 512],
@@ -50,7 +50,7 @@ def create_parser() -> ArgumentParser:
 
     parser.add_argument(
         "-k",
-        "--top-k",
+        "--top_k",
         type=int,
         nargs=1,
         default=[5],
