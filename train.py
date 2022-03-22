@@ -127,27 +127,27 @@ def main():
     train_sampler = SubsetRandomSampler(dataset_indices[:cutoff])
     val_sampler = SubsetRandomSampler(dataset_indices[cutoff:])
 
-    train_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=train_sampler)
-    val_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=val_sampler)
+    train_dataloader = DataLoader(dataset, batch_size=config.batch_size[0], sampler=train_sampler)
+    val_dataloader = DataLoader(dataset, batch_size=config.batch_size[0], sampler=val_sampler)
 
     model = ...
-    if (config.model == "AgreemFlat"):
+    if (config.model[0] == "AgreemFlat"):
         ...
-    elif (config.model == "AgreemDeep"):
+    elif (config.model[0] == "AgreemDeep"):
         model = AgreemDeep(
-            kk=config.top_k,
-            hdim_1=config.hidden_dim[0],
-            hdim_2=config.hidden_dim[1],
+            kk=config.top_k[0],
+            hdim_1=config.hidden_dims[0],
+            hdim_2=config.hidden_dims[1],
         ).to(DEVICE)
-    elif (config.model == "AgreemNet"):
+    elif (config.model[0] == "AgreemNet"):
         model = AgreemNet(
-            hdim=config.hidden_dim[0],
+            hdim=config.hidden_dims[0],
         ).to(DEVICE)
     else:
         assert False # Shouldn't get here
 
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate[0])
 
     trained_model = train_model(
         model=model,
@@ -157,10 +157,10 @@ def main():
         },
         loss_fn=loss_fn,
         optimizer=optimizer, 
-        num_epochs=config.epochs,
+        num_epochs=config.epochs[0],
     )
 
-    save_model(model=trained_model, name=config.model)
+    save_model(model=trained_model, name=config.model[0])
 
 if __name__ == "__main__":
     main()
