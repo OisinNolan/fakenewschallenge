@@ -1,3 +1,4 @@
+from distutils.command.config import config
 from modulefinder import Module
 from dataset import FakeNewsEncodedDataset, STANCE_MAP
 from torch.utils.data import DataLoader
@@ -13,23 +14,15 @@ from time import time
 from copy import deepcopy
 import numpy as np
 from typing import Dict
+from args import create_parser
 
-EPOCHS = 10
-BATCH_SIZE = 256
-LEARNING_RATE = 0.001
-EVAL_FREQ = 50
+# Constants
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-VAL_CUTOFF = 0.7
-WANDB_PROJ = "yo-am-i-going-crazy"
 STANCE_MAP_INV = dict((v,k) for k, v in STANCE_MAP.items())
-
-wandb.init(project=WANDB_PROJ, entity="mlpbros")
-
-wandb.config.update({
-   "learning_rate": LEARNING_RATE,
-   "epochs": EPOCHS,
-   "batch_size": BATCH_SIZE,
-})
+VAL_CUTOFF = 0.7
+EVAL_FREQ = 50
+WANDB_PROJ="yo-am-i-going-crazy"
+WANDB_ENTITY = "mlpbros"
 
 def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, optimizer, num_epochs)-> nn.Module:
     since = time()
@@ -56,7 +49,7 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
                     loss.backward()
                     optimizer.step()
 
-                    wandb.log({f"train-loss": loss / BATCH_SIZE})
+                    wandb.log({f"train-loss": loss / dataloaders["train"].batch_size})
 
                 # EVAL
                 if (batch_idx % EVAL_FREQ == 0):
@@ -102,13 +95,13 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
     model.load_state_dict(best_model)
     return model
 
-def save_model(model: nn.Module, type: str, name: str):
+def save_model(model: nn.Module, name: str):
     path = f"./saved_models/{name}.pth"
-    
     torch.save(model.state_dict(), path)
+
     run = wandb.init(project=WANDB_PROJ)
 
-    artifact = wandb.Artifact(name=name, type=type)
+    artifact = wandb.Artifact(name=name, type="model")
     artifact.add_file(path)
     
     run.log_artifact(artifact)
@@ -116,6 +109,13 @@ def save_model(model: nn.Module, type: str, name: str):
     run.finish()
 
 def main():
+    args = create_parser().parse_args()
+
+    wandb.init(project=WANDB_PROJ, entity=WANDB_ENTITY)
+    wandb.config.update(args)
+    config = wandb.config
+    print(f"Config: {config}")
+
     ##
     dataset = FakeNewsEncodedDataset(
         stances_file="data/train_stances.csv.stance.dat",
@@ -128,14 +128,21 @@ def main():
     train_sampler = SubsetRandomSampler(dataset_indices[:cutoff])
     val_sampler = SubsetRandomSampler(dataset_indices[cutoff:])
 
-    train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=train_sampler)
-    val_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=val_sampler)
+    train_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=train_sampler)
+    val_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=val_sampler)
 
-    #model = AgreemFlat()
-    model = AgreemDeep().to(DEVICE)
+    model = ...
+    if (config.model == "AgreemFlat"):
+        model = AgreemFlat().to(DEVICE)
+    elif (config.model == "AgreemDeep"):
+        model = AgreemDeep().to(DEVICE)
+    elif (config.model == "AgreemNet"):
+        ...
+    else:
+        assert False # Shouldn't get here
 
     loss_fn = nn.CrossEntropyLoss()
-    optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
     trained_model = train_model(
         model=model,
@@ -145,15 +152,10 @@ def main():
         },
         loss_fn=loss_fn,
         optimizer=optimizer, 
-        num_epochs=EPOCHS,
+        num_epochs=config.epochs,
     )
 
-    print("* Saving model *")
-    save_model(
-        model=trained_model,
-        type="AgreemDeep",
-        name="test-model"
-    )
+    save_model(model=trained_model, name=config.model)
 
 if __name__ == "__main__":
     main()
