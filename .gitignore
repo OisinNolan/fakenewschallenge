@@ -160,3 +160,4 @@ cython_debug/
 
 # Pickle data files
 .dat
+/data/*.dat
