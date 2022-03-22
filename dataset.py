@@ -34,7 +34,8 @@ class FakeNewsDataset(Dataset):
 class FakeNewsEncodedDataset(Dataset):
     def __init__(self, stances_file, bodies_file):
         self.stances = []
-        self.bodies = {}
+        self.sim_bodies = {}
+        self.nli_bodies = {}
         
         with open(stances_file, "rb") as sf:
             completed_read = False
@@ -49,8 +50,9 @@ class FakeNewsEncodedDataset(Dataset):
             completed_read = False
             while not completed_read:
                 try:
-                    body_id, embedding = pickle.load(bf)
-                    self.bodies[body_id] = embedding
+                    body_id, sim_embeddings, nli_embeddings = pickle.load(bf)
+                    self.sim_bodies[body_id] = sim_embeddings
+                    self.nli_bodies[body_id] = nli_embeddings
                 except EOFError:
                     completed_read = True
 
@@ -58,6 +60,12 @@ class FakeNewsEncodedDataset(Dataset):
         return len(self.stances) # TODO Is this correct?
 
     def __getitem__(self, idx):
-        head_emb, body_id, stance = self.stances[idx]
-        body_emb = self.bodies[str(body_id)]
-        return (head_emb, body_emb), STANCE_MAP[stance]
+        body_id, sim_stance_embedding, nli_stance_embedding, stance = self.stances[idx]
+        sim_body_embedding = self.sim_bodies[body_id]
+        nli_body_embedding = self.nli_bodies[body_id]
+        return (
+            sim_stance_embedding,
+            nli_stance_embedding,
+            sim_body_embedding,
+            nli_body_embedding,
+        ), STANCE_MAP[stance]
