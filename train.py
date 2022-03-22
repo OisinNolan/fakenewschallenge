@@ -19,7 +19,7 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 STANCE_MAP_INV = dict((v,k) for k, v in STANCE_MAP.items())
 VAL_CUTOFF = 0.7
 EVAL_FREQ = 20
-WANDB_PROJ="yo-am-i-going-crazy"
+WANDB_PROJ="2022-mar-22-overnights"
 WANDB_ENTITY = "mlpbros"
 
 def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, optimizer, num_epochs)-> nn.Module:
