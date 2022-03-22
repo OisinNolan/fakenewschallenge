@@ -7,7 +7,7 @@ def create_parser() -> ArgumentParser:
         "-m",
         "--model",
         type=str,
-        nargs="?",
+        nargs=1,
         choices=["AgreemFlat", "AgreemDeep", "AgreemNet"],
         help="Name of project",
     )
@@ -16,7 +16,7 @@ def create_parser() -> ArgumentParser:
         "-e",
         "--epochs",
         type=int,
-        nargs="?",
+        nargs=1,
         default=5,
         help="Number of epochs to perform",
     )
@@ -25,7 +25,7 @@ def create_parser() -> ArgumentParser:
         "-bs",
         "--batch-size",
         type=int,
-        nargs="?",
+        nargs=1,
         default=64,
         help="Batch size for training and validation loops",
     )
@@ -34,9 +34,27 @@ def create_parser() -> ArgumentParser:
         "-lr",
         "--learning-rate",
         type=float,
-        nargs="?",
+        nargs=1,
         default=0.01,
         help="Learning rate for training loop",
+    )
+
+    parser.add_argument(
+        "-hd",
+        "--hidden-dims",
+        type=int,
+        nargs="*",
+        default=[1024, 512],
+        help="Dimension of hidden layers in AgreemDeep and AgreemNet",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--top-k",
+        type=int,
+        nargs=1,
+        default=[5],
+        help="Top-K similar embeddings used in AgreemDeep",
     )
 
     return parser
