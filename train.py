@@ -43,7 +43,7 @@ def train(dataloader, model, loss_fn, optimizer):
         #tqdm.write(f"{current:>5d} | loss: {loss:>7f}")
         wandb.log({"training-loss": loss})
 
-        if (batch % EVAL_FREQ == 0 and batch != 0):
+        if (batch % EVAL_FREQ == 0):
             model.eval()
             val(val_dataloader, model, loss_fn)
 
