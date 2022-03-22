@@ -1,7 +1,7 @@
 from dataset import FakeNewsEncodedDataset
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from model import AgreemFlat, AgreemNet
+from model import AgreemDeep, AgreemFlat, AgreemNet
 from util import pad_tokenize 
 import torch
 from torch import batch_norm, nn
@@ -10,7 +10,7 @@ import math
 import wandb
 
 EPOCHS = 10
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 LEARNING_RATE = 0.001
 EVAL_FREQ = 50
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -27,6 +27,10 @@ wandb.config = {
 def train(dataloader, model, loss_fn, optimizer):
     for batch, (embeddings, stance) in tqdm(enumerate(dataloader)):
         model.train()
+        
+        embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
+        stance = stance.to(DEVICE)
+        
         pred = model(*embeddings)
         loss = loss_fn(pred, stance) # TODO: use weight for unbalanced??
 
@@ -36,7 +40,7 @@ def train(dataloader, model, loss_fn, optimizer):
         optimizer.step()
 
         loss, current = loss.item(), (batch * BATCH_SIZE)
-        tqdm.write(f"{current:>5d} | loss: {loss:>7f}")
+        #tqdm.write(f"{current:>5d} | loss: {loss:>7f}")
         wandb.log({"training-loss": loss})
 
         if (batch % EVAL_FREQ == 0):
@@ -63,6 +67,9 @@ def val(dataloader, model, loss_fn):
 
     with torch.no_grad():
         for batch, (embeddings, stance) in tqdm(enumerate(dataloader)):
+            embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
+            stance = stance.to(DEVICE)
+
             pred = model(*embeddings)
             test_loss += loss_fn(pred, stance).item()
             for pred_i, stance_i in zip(pred, stance):
@@ -95,7 +102,9 @@ val_sampler = SubsetRandomSampler(dataset_indices[cutoff:])
 train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=train_sampler)
 val_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=val_sampler)
 
-model = AgreemFlat()
+#model = AgreemFlat()
+model = AgreemDeep()
+model.to(DEVICE)
 
 loss_fn = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
