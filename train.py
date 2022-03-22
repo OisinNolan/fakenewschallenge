@@ -1,7 +1,7 @@
 from dataset import FakeNewsEncodedDataset, STANCE_MAP
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from model import AgreemDeep, AgreemFlat, AgreemNet, NUM_CLASSES
+from model import AgreemDeep, AgreemFlat, AgreemNet
 from util import pad_tokenize 
 import torch
 from torch import batch_norm, nn
@@ -55,8 +55,8 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
                     pbar.set_description(f"Epoch {epoch}/{num_epochs-1} | " + "Evaluating...")
 
                     cum_loss = 0
-                    class_correct = np.zeros(NUM_CLASSES)
-                    class_total = np.zeros(NUM_CLASSES)
+                    class_correct = np.zeros(model.num_classes)
+                    class_total = np.zeros(model.num_classes)
 
                     for (embeddings, stance) in dataloaders["val"]:
                         embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
@@ -73,13 +73,13 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
                             class_total[ss] += 1
 
                     val_loss = cum_loss / len(dataloaders["val"].dataset)
-                    class_avgs = [class_correct[ii] / class_total[ii] for ii in range(NUM_CLASSES)]
+                    class_avgs = [class_correct[ii] / class_total[ii] for ii in range(model.num_classes)]
 
                     pbar.set_postfix(class_averages=f"{[np.round(ca * 100,1) for ca in class_avgs]}")
 
                     wandb.log({f"val-loss": val_loss})
                     wandb.log({
-                        f'{STANCE_MAP_INV[ii]}': class_avgs[ii] for ii in range(NUM_CLASSES)
+                        f'{STANCE_MAP_INV[ii]}': class_avgs[ii] for ii in range(model.num_classes)
                     })
                     
                     # deep copy the model
