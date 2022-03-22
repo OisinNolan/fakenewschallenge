@@ -1,5 +1,3 @@
-from distutils.command.config import config
-from modulefinder import Module
 from dataset import FakeNewsEncodedDataset, STANCE_MAP
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
