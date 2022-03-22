@@ -7,12 +7,13 @@ from functools import reduce
 
 SIM_DIM = 384
 NLI_DIM = 768
-NUM_CLASSES = 3
+NUM_CLASSES = 4 # TODO
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 SIM_SCALAR = 50
 TOP_K_SENT = 5
 
 FC_DIMS = [(NLI_DIM * 6) + 5, 1024, 512, NUM_CLASSES]
+HIDDEN_DIMS = [1024, 512]
 
 class AgreemNet(nn.Module):
     def __init__(self):
@@ -84,30 +85,45 @@ class AgreemNet(nn.Module):
         xx = F.relu(xx)
         xx = self.fc3(xx)
 
-        output = F.softmax(xx, dim=1)
+        output = xx#F.softmax(xx, dim=1)
         return output
 
-
-class AgreeFlat(nn.Module):
+class AgreemFlat(nn.Module):
     def __init__(self, kk=5):
-        super(AgreeFlat, self).__init__()
-        
-        self.fc1 = torch.nn.Linear(FC_DIMS[0], FC_DIMS[1])
-        self.fc2 = torch.nn.Linear(FC_DIMS[1], FC_DIMS[2])
+        super(AgreemFlat, self).__init__()
+        self.kk = kk
+        self.fc1 = torch.nn.Linear((kk + 1) * NLI_DIM, HIDDEN_DIMS[0])
+        self.fc2 = torch.nn.Linear(HIDDEN_DIMS[0], NUM_CLASSES)
 
-    def forward(self, H, B_sim, B_nli):
+    def forward(self, sim_stance_emb, nli_stance_emb, sim_body_emb, nli_body_emb):
         '''
-        H: List of headline strings
-        B: List of padded lists of body sentence strings
+        TODO
         '''
+        batch_size = sim_stance_emb.shape[0]
+        assert batch_size == nli_stance_emb.shape[0]
+        assert batch_size == sim_body_emb.shape[0]
+        assert batch_size == nli_body_emb.shape[0]
         
-        batch_size = len(B)
-        
-        # Take first k (replace with top k)
-        B_flat = B.flatten(dim=1)
-        xx = torch.cat()
+        sims = torch.bmm(
+            sim_stance_emb.unsqueeze(1),
+            torch.transpose(sim_body_emb,1,2)
+        ).squeeze()
 
-        output = F.softmax(xx, dim=1)
+        top_k = torch.topk(sims,k=self.kk,dim=1)
+        
+        nli_body_emb_top_k = torch.transpose(
+            nli_body_emb[np.arange(batch_size),top_k.indices.T],
+        dim0=0,dim1=1)
+
+        nli_body_emb_top_k_flat = nli_body_emb_top_k.flatten(start_dim=1)
+
+        xx = torch.hstack([nli_stance_emb, nli_body_emb_top_k_flat])
+        
+        xx = self.fc1(xx)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        output = xx#F.softmax(xx, dim=1)
+
         return output
 
 # class SimDeep
