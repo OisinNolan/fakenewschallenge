@@ -11,6 +11,15 @@ STANCE_MAP = {
     'unrelated':3,
 }
 
+# This map makes a 2-class classification task, where
+# labels are just 'related=1', or 'unrelated=0'.
+RELATED_STANCE_MAP = {
+    'unrelated':0,
+    'agree':1,
+    'disagree':1,
+    'discuss':1,
+}
+
 class FakeNewsDataset(Dataset):
     def __init__(self, stances_file=None, bodies_file=None, related_only=False):
         self.stances = pd.read_csv(stances_file) if stances_file else None
@@ -32,16 +41,19 @@ class FakeNewsDataset(Dataset):
         return (headline, body), STANCE_MAP[stance]
 
 class FakeNewsEncodedDataset(Dataset):
-    def __init__(self, stances_file, bodies_file):
+    def __init__(self, stances_file, bodies_file, no_unrelated=False, related_task=False):
         self.stances = []
         self.sim_bodies = {}
         self.nli_bodies = {}
+        self.related_task = related_task
         
         with open(stances_file, "rb") as sf:
             completed_read = False
             while not completed_read:
                 try:
                     stance = pickle.load(sf)
+                    if no_unrelated and stance[3] == 'unrelated':
+                        continue
                     self.stances.append(stance) # TODO: memory inefficient?
                 except EOFError:
                     completed_read = True
@@ -63,9 +75,10 @@ class FakeNewsEncodedDataset(Dataset):
         body_id, sim_stance_embedding, nli_stance_embedding, stance = self.stances[idx]
         sim_body_embedding = self.sim_bodies[body_id]
         nli_body_embedding = self.nli_bodies[body_id]
+        label = STANCE_MAP[stance] if self.related_task else STANCE_MAP[stance]
         return (
             sim_stance_embedding,
             nli_stance_embedding,
             sim_body_embedding,
             nli_body_embedding,
-        ), STANCE_MAP[stance]
+        ), label

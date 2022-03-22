@@ -119,7 +119,8 @@ def main():
     ##
     dataset = FakeNewsEncodedDataset(
         stances_file="data/train_stances.csv.stance.dat",
-        bodies_file="data/train_bodies.csv.body.dat"
+        bodies_file="data/train_bodies.csv.body.dat",
+        no_unrelated=True
     )
     dataset_size = len(dataset)
     dataset_indices = list(range(dataset_size))
@@ -131,8 +132,9 @@ def main():
     train_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=train_sampler)
     val_dataloader = DataLoader(dataset, batch_size=BATCH_SIZE, sampler=val_sampler)
 
-    #model = AgreemFlat()
+    # model = AgreemFlat()
     model = AgreemDeep().to(DEVICE)
+    # model = AgreemNet().to(DEVICE)
 
     loss_fn = nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=LEARNING_RATE)
