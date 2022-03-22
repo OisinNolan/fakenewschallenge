@@ -75,7 +75,7 @@ class FakeNewsEncodedDataset(Dataset):
         body_id, sim_stance_embedding, nli_stance_embedding, stance = self.stances[idx]
         sim_body_embedding = self.sim_bodies[body_id]
         nli_body_embedding = self.nli_bodies[body_id]
-        label = STANCE_MAP[stance] if self.related_task else STANCE_MAP[stance]
+        label = RELATED_STANCE_MAP[stance] if self.related_task else STANCE_MAP[stance]
         return (
             sim_stance_embedding,
             nli_stance_embedding,
