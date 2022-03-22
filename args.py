@@ -7,8 +7,8 @@ def create_parser() -> ArgumentParser:
         "-m",
         "--model",
         type=str,
-        nargs=1,
         choices=["AgreemFlat", "AgreemDeep", "AgreemNet"],
+        default="AgreemNet",
         help="Name of project",
     )
 
