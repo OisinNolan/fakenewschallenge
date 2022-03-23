@@ -24,7 +24,8 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
     since = time()
 
     best_model = deepcopy(model.state_dict())
-    best_loss = float("inf")
+    best_uca = 0
+    best_class_avg = []
 
     for epoch in range(num_epochs):   
         with tqdm(
@@ -78,17 +79,20 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
                         f'{RELATED_STANCE_MAP_INV[ii] if (type(model) == RelatedNet) else STANCE_MAP_INV[ii]}': \
                             class_avgs[ii] for ii in range(model.num_classes)
                     })
+                    uca = np.mean(class_avgs) # Unnormalised class averages
+                    wandb.log({"uca": uca})
 
                     # deep copy the model
-                    if val_loss < best_loss:
-                        best_loss = val_loss
+                    if uca > best_uca:
+                        best_uca = uca
                         best_model = deepcopy(model.state_dict())
+                        best_class_avg = class_avgs
 
     time_elapsed = time() - since
     print(f"Training complete in {time_elapsed // 60:.0f}m {time_elapsed % 60:.0f}s")
 
     model.load_state_dict(best_model)
-    return model
+    return model, best_class_avg
 
 def save_model(model: nn.Module, name: str):
     path = f"./saved_models/{name}.pth"
@@ -159,7 +163,7 @@ def main():
     loss_fn = nn.CrossEntropyLoss() # TODO weights
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
-    trained_model = train_model(
+    trained_model, trained_class_avgs = train_model(
         model=model,
         dataloaders={
             "train": train_dataloader,
@@ -170,6 +174,7 @@ def main():
         num_epochs=config.epochs,
     )
 
+    print(f"Saving trained model with class averages: {[np.round(ca * 100,1) for ca in trained_class_avgs]}")
     save_model(model=trained_model, name=config.model)
 
 if __name__ == "__main__":
