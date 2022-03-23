@@ -1,7 +1,7 @@
 from dataset import FakeNewsEncodedDataset, STANCE_MAP
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from model import AgreemDeep, AgreemFlat, AgreemNet, AgreemNetDeep
+from model import AgreemDeep, AgreemFlat, AgreemNet, AgreemNetDeep, AgreemNetDeepPlus
 from util import pad_tokenize 
 import torch
 from torch import batch_norm, nn
@@ -148,6 +148,11 @@ def main():
         ).to(DEVICE)
     elif (config.model == "AgreemNetDeep"):
         model = AgreemNetDeep(
+            hdim_1=config.hidden_dims_A,
+            hdim_2=config.hidden_dims_B,
+        ).to(DEVICE)
+    elif (config.model == "AgreemNetDeepPlus"):
+        model = AgreemNetDeepPlus(
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
         ).to(DEVICE)

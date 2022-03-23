@@ -175,6 +175,69 @@ class AgreemDeep(nn.Module):
 
         return logits
 
+class AgreemNetDeepPlus(nn.Module):
+    def __init__(self, kk=5, hdim_1=1024, hdim_2=512, num_classes=3):
+        super(AgreemNetDeepPlus, self).__init__()
+        self.kk = kk
+        self.num_classes = num_classes
+        self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1)
+        self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
+        
+        self.fc1 = torch.nn.Linear((SIM_DIM * 2) + 1 + (kk + 1) * NLI_DIM, hdim_1)
+        self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc3 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc4 = torch.nn.Linear(hdim_1, hdim_2)
+        self.fc5 = torch.nn.Linear(hdim_2, num_classes)
+
+    def forward(self, H_sims, H_nlis, B_sims, B_nlis):
+        batch_size = H_sims.shape[0]
+        assert batch_size == H_nlis.shape[0]
+        assert batch_size == B_sims.shape[0]
+        assert batch_size == B_nlis.shape[0]
+      
+        sent_len = B_sims.shape[1]
+
+        # Select the k nli embeddings with highest similarity
+        sims = torch.bmm(
+            H_sims.unsqueeze(1),
+            torch.transpose(B_sims,1,2)
+        ).squeeze()
+
+        top_k = torch.topk(sims,k=self.kk,dim=1)
+
+        B_nlis_top_k = torch.transpose(
+            B_nlis[np.arange(batch_size),top_k.indices.T],
+        dim0=0,dim1=1)
+
+        B_nlis_top_k_flat = B_nlis_top_k.flatten(start_dim=1)
+
+        # Attention layer
+        attn_out, attn_weights = self.attention(
+            H_sims.view(1, batch_size, SIM_DIM),
+            B_sims.view(sent_len, batch_size, SIM_DIM),
+            B_nlis.view(sent_len, batch_size, NLI_DIM)
+        )
+
+        # Linear transform head_nli to be same dimension as attn_out
+        reduced_head = self.reduce_head(H_nlis)
+        xx = torch.cat((attn_out.squeeze(), reduced_head, F.cosine_similarity(attn_out.squeeze(), reduced_head).view(batch_size, 1), H_nlis, B_nlis_top_k_flat), dim=1)
+        
+        xx = self.fc1(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc3(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc4(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        logits = self.fc5(xx)
+        
+        return logits
+
 # class SimDeep
 
 # class AgreeDeep(nn.Module): 
