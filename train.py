@@ -159,7 +159,7 @@ def main():
     else:
         assert False # Shouldn't get here
 
-    loss_fn = nn.CrossEntropyLoss()
+    loss_fn = nn.CrossEntropyLoss(weight=torch.Tensor([1,1,1]))
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
     trained_model = train_model(
