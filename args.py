@@ -4,12 +4,20 @@ def create_parser() -> ArgumentParser:
     parser = ArgumentParser(description="Training of MLP Project Model")
 
     parser.add_argument(
+        "-p",
+        "--project_name",
+        type=str,
+        help="Name of WandB project",
+        required=True,
+    )
+
+    parser.add_argument(
         "-m",
         "--model",
         type=str,
         choices=["AgreemFlat", "AgreemDeep", "AgreemNet"],
         default="AgreemNet",
-        help="Name of project",
+        help="Name of model",
     )
 
     parser.add_argument(
