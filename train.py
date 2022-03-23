@@ -20,6 +20,7 @@ STANCE_MAP_INV = dict((v,k) for k, v in STANCE_MAP.items())
 VAL_CUTOFF = 0.7
 EVAL_FREQ = 20
 WANDB_ENTITY = "mlpbros"
+WANDB_PROJ = "default-project"
 
 def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, optimizer, num_epochs)-> nn.Module:
     since = time()
@@ -107,8 +108,11 @@ def save_model(model: nn.Module, name: str):
 
 def main():
     args = create_parser().parse_args()
+    
+    if (args.project_name is not None):
+        WANDB_PROJ = args.project_name
 
-    wandb.init(project=args.project_name, entity=WANDB_ENTITY)
+    wandb.init(project=WANDB_PROJ, entity=WANDB_ENTITY)
     wandb.config.update(args)
     config = wandb.config
     print(f"Config: {config}")
