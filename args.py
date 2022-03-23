@@ -75,6 +75,22 @@ def create_parser() -> ArgumentParser:
         help="Top-K similar embeddings used in AgreemDeep",
     )
 
+    parser.add_argument(
+        "-ah",
+        "--attention_heads",
+        type=int,
+        default=5,
+        help="Number of attention heads to use in AgreemNet",
+    )
+
+    parser.add_argument(
+        "-d",
+        "--dropout",
+        type=int,
+        default=0.7,
+        help="Dropout probability",
+    )
+
     return parser
 
 def main(): # For debugging

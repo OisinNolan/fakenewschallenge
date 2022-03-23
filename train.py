@@ -108,7 +108,7 @@ def save_model(model: nn.Module, name: str):
 
 def main():
     args = create_parser().parse_args()
-    
+
     if (args.project_name is not None):
         WANDB_PROJ = args.project_name
 
@@ -141,10 +141,14 @@ def main():
             kk=config.top_k,
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
+            dropout=config.dropout,
         ).to(DEVICE)
     elif (config.model == "AgreemNet"):
         model = AgreemNet(
-            hdim=config.hidden_dims_B,
+            hdim_1=config.hidden_dims_A,
+            hdim_2=config.hidden_dims_B,
+            dropout=config.dropout,
+            num_heads=config.attention_heads,
         ).to(DEVICE)
     elif (config.model == "AgreemNetDeep"):
         model = AgreemNetDeep(
