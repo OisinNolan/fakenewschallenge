@@ -12,6 +12,7 @@ from copy import deepcopy
 import numpy as np
 from typing import Dict
 from args import create_parser
+import torchinfo
 
 # Constants
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -154,6 +155,8 @@ def main():
         ).to(DEVICE)
     else:
         assert False # Shouldn't get here
+
+    torchinfo.summary(model)
 
     loss_fn = nn.CrossEntropyLoss() # TODO weights
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
