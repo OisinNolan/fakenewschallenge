@@ -17,7 +17,6 @@ import torchinfo
 # Constants
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 VAL_CUTOFF = 0.7
-EVAL_FREQ = 20
 WANDB_ENTITY = "mlpbros"
 WANDB_PROJ = "default-project"
 
@@ -28,59 +27,57 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
     best_loss = float("inf")
 
     for epoch in range(num_epochs):   
-        with tqdm(dataloaders["train"], bar_format="{l_bar}{bar:10}{r_bar}{bar:-10b}") as pbar:
-            # TRAIN
-            for batch_idx, (embeddings, stance) in enumerate(pbar):
-                model.train()
-                pbar.set_description(f"Epoch {epoch}/{num_epochs-1} | " + "Training...")
-                
-                embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
-                stance = stance.to(DEVICE)
-
-                with torch.set_grad_enabled(True):
-                    pred = model(*embeddings)
-                    loss = loss_fn(pred, stance) # TODO: use weight for unbalanced??
-
-                    # Backprop
-                    optimizer.zero_grad()
-                    loss.backward()
-                    optimizer.step()
-
-                    wandb.log({f"train-loss": loss / dataloaders["train"].batch_size})
-
-                # EVAL
-                if (batch_idx % EVAL_FREQ == 0):
+        with tqdm(
+            total= math.ceil(len(dataloaders["train"].dataset) / dataloaders["train"].batch_size),
+            bar_format="{l_bar}{bar:20}{r_bar}{bar:-10b}"
+        ) as pbar:
+            for phase in ["train", "val"]:               
+                if (phase == "train"):
+                    model.train()
+                else:
                     model.eval()
-                    pbar.set_description(f"Epoch {epoch}/{num_epochs-1} | " + "Evaluating...")
+                
+                cum_loss = 0
+                class_correct = np.zeros(model.num_classes)
+                class_total = np.zeros(model.num_classes)
 
-                    cum_loss = 0
-                    class_correct = np.zeros(model.num_classes)
-                    class_total = np.zeros(model.num_classes)
+                pbar.set_description(f"Epoch {epoch:>2}/{num_epochs-1} | {phase:>6}  ")
+                for (embeddings, stance) in dataloaders[phase]:
+                    embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
+                    stance = stance.to(DEVICE)
 
-                    for (embeddings, stance) in dataloaders["val"]:
-                        embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
-                        stance = stance.to(DEVICE)
+                    with torch.set_grad_enabled(phase == "train"):
+                        pred = model(*embeddings)
+                        loss = loss_fn(pred, stance) # TODO: use weight for unbalanced??
 
-                        with torch.set_grad_enabled(False):
-                            pred = model(*embeddings)
-                            loss = loss_fn(pred, stance) # TODO: use weight for unbalanced??
+                        if (phase == "train"):
+                            # Backprop
+                            optimizer.zero_grad()
+                            loss.backward()
+                            optimizer.step()
 
-                        cum_loss += loss.item()
-                        pred_stance = torch.max(pred,dim=1).indices
-                        for ss, pp in zip(stance, pred_stance):
-                            class_correct[ss] += 1 if (ss == pp) else 0
-                            class_total[ss] += 1
+                            wandb.log({f"train-loss": loss / dataloaders["train"].batch_size})
 
+                        elif (phase == "val"):
+                            cum_loss += loss.item()
+                            pred_stance = torch.max(pred,dim=1).indices
+                            for ss, pp in zip(stance, pred_stance):
+                                class_correct[ss] += 1 if (ss == pp) else 0
+                                class_total[ss] += 1
+                    
+                    pbar.update()
+
+                if (phase == "val"):
                     val_loss = cum_loss / len(dataloaders["val"].dataset)
                     class_avgs = [class_correct[ii] / class_total[ii] for ii in range(model.num_classes)]
 
-                    pbar.set_postfix(class_averages=f"{[np.round(ca * 100,1) for ca in class_avgs]}")
+                    pbar.set_postfix(class_averages=f"{[np.round(ca * 100,1) for ca in class_avgs]}", refresh=True)
 
                     wandb.log({f"val-loss": val_loss})
                     wandb.log({
                         f'{STANCE_MAP_INV[ii]}': class_avgs[ii] for ii in range(model.num_classes)
                     })
-                    
+                
                     # deep copy the model
                     if val_loss < best_loss:
                         best_loss = val_loss
