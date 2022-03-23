@@ -20,6 +20,7 @@ RELATED_STANCE_MAP = {
     'disagree':1,
     'discuss':1,
 }
+RELATED_STANCE_MAP_INV = {0: 'unrelated', 1: 'related'}
 
 class FakeNewsDataset(Dataset):
     def __init__(self, stances_file=None, bodies_file=None, related_only=False):

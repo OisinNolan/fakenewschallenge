@@ -1,4 +1,4 @@
-from dataset import FakeNewsEncodedDataset, STANCE_MAP_INV
+from dataset import FakeNewsEncodedDataset, STANCE_MAP_INV, RELATED_STANCE_MAP_INV
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from model import RelatedNet, AgreemNet, TopKNet
@@ -75,9 +75,10 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
 
                     wandb.log({f"val-loss": val_loss})
                     wandb.log({
-                        f'{STANCE_MAP_INV[ii]}': class_avgs[ii] for ii in range(model.num_classes)
+                        f'{RELATED_STANCE_MAP_INV[ii] if (type(model) == RelatedNet) else STANCE_MAP_INV[ii]}': \
+                            class_avgs[ii] for ii in range(model.num_classes)
                     })
-                
+
                     # deep copy the model
                     if val_loss < best_loss:
                         best_loss = val_loss
