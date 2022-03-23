@@ -41,6 +41,50 @@ class AgreemNet(nn.Module):
         
         return logits
 
+class AgreemNetDeep(nn.Module):
+    def __init__(self, hdim_1=1024, hdim_2=512, num_classes=3):
+        super(AgreemNetDeep, self).__init__()
+        self.num_classes = num_classes
+        self.attention = torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1)
+        self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
+        
+        self.fc1 = torch.nn.Linear((SIM_DIM * 2) + 1, hdim_1)
+        self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc3 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc4 = torch.nn.Linear(hdim_1, hdim_2)
+        self.fc5 = torch.nn.Linear(hdim_2, num_classes)
+
+    def forward(self, H_sims, H_nlis, B_sims, B_nlis):
+        batch_size = B_sims.shape[0]
+        sent_len = B_sims.shape[1]
+        
+        # Attention layer
+        attn_out, attn_weights = self.attention(
+            H_sims.view(1, batch_size, SIM_DIM),
+            B_sims.view(sent_len, batch_size, SIM_DIM),
+            B_nlis.view(sent_len, batch_size, NLI_DIM)
+        )
+
+        # Linear transform head_nli to be same dimension as attn_out
+        reduced_head = self.reduce_head(H_nlis)
+        xx = torch.cat((attn_out.squeeze(), reduced_head, F.cosine_similarity(attn_out.squeeze(), reduced_head).view(batch_size, 1)), dim=1)
+        
+        xx = self.fc1(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc3(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc4(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        logits = self.fc5(xx)
+        
+        return logits
+
 class AgreemFlat(nn.Module):
     # def __init__(self, kk=5):
     #     super(AgreemFlat, self).__init__()
