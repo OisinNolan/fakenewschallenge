@@ -45,12 +45,19 @@ def create_parser() -> ArgumentParser:
     )
 
     parser.add_argument(
-        "-hd",
-        "--hidden_dims",
+        "-hdA",
+        "--hidden_dims_A",
         type=int,
-        nargs="*",
-        default=[1024, 512],
-        help="Dimension of hidden layers in AgreemDeep and AgreemNet",
+        default=1024,
+        help="Dimension of INNER hidden layers in AgreemDeep and AgreemNet",
+    )
+
+    parser.add_argument(
+        "-hdB",
+        "--hidden_dims_B",
+        type=int,
+        default=512,
+        help="Dimension of OUTER hidden layer in AgreemDeep and AgreemNet",
     )
 
     parser.add_argument(

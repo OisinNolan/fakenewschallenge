@@ -139,12 +139,12 @@ def main():
     elif (config.model == "AgreemDeep"):
         model = AgreemDeep(
             kk=config.top_k,
-            hdim_1=config.hidden_dims[0],
-            hdim_2=config.hidden_dims[1],
+            hdim_1=config.hidden_dims_A,
+            hdim_2=config.hidden_dims_B,
         ).to(DEVICE)
     elif (config.model == "AgreemNet"):
         model = AgreemNet(
-            hdim=config.hidden_dims[0],
+            hdim=config.hidden_dims_B,
         ).to(DEVICE)
     else:
         assert False # Shouldn't get here
