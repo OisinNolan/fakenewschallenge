@@ -10,6 +10,7 @@ STANCE_MAP = {
     'discuss':2,
     'unrelated':3,
 }
+STANCE_MAP_INV = dict((v,k) for k, v in STANCE_MAP.items())
 
 # This map makes a 2-class classification task, where
 # labels are just 'related=1', or 'unrelated=0'.

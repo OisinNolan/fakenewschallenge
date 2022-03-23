@@ -16,14 +16,11 @@ def create_parser() -> ArgumentParser:
         "--model",
         type=str,
         choices=[
-            "SimNet",
-            "AgreemFlat",
-            "AgreemDeep",
+            "RelatedNet",
+            "TopKNet",
             "AgreemNet",
-            "AgreemNetDeep",
-            "AgreemNetDeepPlus"
         ],
-        default="AgreemNet",
+        required=True,
         help="Name of model",
     )
 

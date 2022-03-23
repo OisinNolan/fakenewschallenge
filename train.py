@@ -1,10 +1,9 @@
-from dataset import FakeNewsEncodedDataset, STANCE_MAP
+from dataset import FakeNewsEncodedDataset, STANCE_MAP_INV
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from model import AgreemDeep, AgreemFlat, AgreemNet, AgreemNetDeep, AgreemNetDeepPlus, SimNet
-from util import pad_tokenize 
+from model import RelatedNet, AgreemNet, TopKNet
 import torch
-from torch import batch_norm, nn
+from torch import nn
 from tqdm import tqdm
 import math
 import wandb
@@ -16,7 +15,6 @@ from args import create_parser
 
 # Constants
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-STANCE_MAP_INV = dict((v,k) for k, v in STANCE_MAP.items())
 VAL_CUTOFF = 0.7
 EVAL_FREQ = 20
 WANDB_ENTITY = "mlpbros"
@@ -120,8 +118,8 @@ def main():
     dataset = FakeNewsEncodedDataset(
         stances_file="data/train_stances.csv.stance.dat",
         bodies_file="data/train_bodies.csv.body.dat",
-        no_unrelated=(config.model != "SimNet"),
-        related_task=(config.model == "SimNet"),
+        no_unrelated=(config.model != "RelatedNet"),
+        related_task=(config.model == "RelatedNet"),
     )
     dataset_size = len(dataset)
     dataset_indices = list(range(dataset_size))
@@ -134,10 +132,8 @@ def main():
     val_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=val_sampler)
 
     model = ...
-    if (config.model == "AgreemFlat"):
-        ...
-    elif (config.model == "AgreemDeep"):
-        model = AgreemDeep(
+    if (config.model == "TopKNet"):
+        model = TopKNet(
             kk=config.top_k,
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
@@ -150,19 +146,8 @@ def main():
             dropout=config.dropout,
             num_heads=config.attention_heads,
         ).to(DEVICE)
-    elif (config.model == "AgreemNetDeep"):
-        model = AgreemNetDeep(
-            hdim_1=config.hidden_dims_A,
-            hdim_2=config.hidden_dims_B,
-        ).to(DEVICE)
-    elif (config.model == "AgreemNetDeepPlus"):
-        model = AgreemNetDeepPlus(
-            kk=config.top_k,
-            hdim_1=config.hidden_dims_A,
-            hdim_2=config.hidden_dims_B,
-        ).to(DEVICE)
-    elif (config.model == "SimNet"):
-        model = SimNet(
+    elif (config.model == "RelatedNet"):
+        model = RelatedNet(
             kk=config.top_k,
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
