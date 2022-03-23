@@ -16,6 +16,7 @@ def create_parser() -> ArgumentParser:
         "--model",
         type=str,
         choices=[
+            "SimNet",
             "AgreemFlat",
             "AgreemDeep",
             "AgreemNet",

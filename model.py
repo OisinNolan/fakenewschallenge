@@ -238,8 +238,55 @@ class AgreemNetDeepPlus(nn.Module):
         
         return logits
 
-# class SimDeep
 
-# class AgreeDeep(nn.Module): 
+class SimNet(nn.Module):
+    def __init__(self, kk=5, hdim_1=1024, hdim_2=512, num_classes=2):
+        super(SimNet, self).__init__()
+        self.kk = kk
+        self.num_classes = num_classes
+        self.fc1 = torch.nn.Linear((kk + 1) * SIM_DIM, hdim_1)
+        self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc3 = torch.nn.Linear(hdim_1, hdim_1)
+        self.fc4 = torch.nn.Linear(hdim_1, hdim_2)
+        self.fc5 = torch.nn.Linear(hdim_2, num_classes)
 
-# class AgreeAttn(nn.Module): 
+    def forward(self, sim_stance_emb, nli_stance_emb, sim_body_emb, nli_body_emb):
+        '''
+        TODO
+        '''
+        batch_size = sim_stance_emb.shape[0]
+        assert batch_size == nli_stance_emb.shape[0]
+        assert batch_size == sim_body_emb.shape[0]
+        assert batch_size == nli_body_emb.shape[0]
+        
+        # Select the k nli embeddings with highest similarity
+        sims = torch.bmm(
+            sim_stance_emb.unsqueeze(1),
+            torch.transpose(sim_body_emb,1,2)
+        ).squeeze()
+
+        top_k = torch.topk(sims,k=self.kk,dim=1)
+
+        sim_body_emb_top_k = torch.transpose(
+            sim_body_emb[np.arange(batch_size),top_k.indices.T],
+        dim0=0,dim1=1)
+
+        sim_body_emb_top_k_flat = sim_body_emb_top_k.flatten(start_dim=1)
+        
+        xx = torch.hstack([sim_stance_emb, sim_body_emb_top_k_flat])
+        
+        xx = self.fc1(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc2(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc3(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        xx = self.fc4(xx)
+        xx = F.dropout(xx, p=0.5)
+        xx = F.relu(xx)
+        logits = self.fc5(xx)
+
+        return logits

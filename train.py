@@ -1,7 +1,7 @@
 from dataset import FakeNewsEncodedDataset, STANCE_MAP
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
-from model import AgreemDeep, AgreemFlat, AgreemNet, AgreemNetDeep, AgreemNetDeepPlus
+from model import AgreemDeep, AgreemFlat, AgreemNet, AgreemNetDeep, AgreemNetDeepPlus, SimNet
 from util import pad_tokenize 
 import torch
 from torch import batch_norm, nn
@@ -117,11 +117,11 @@ def main():
     config = wandb.config
     print(f"Config: {config}")
 
-    ##
     dataset = FakeNewsEncodedDataset(
         stances_file="data/train_stances.csv.stance.dat",
         bodies_file="data/train_bodies.csv.body.dat",
-        no_unrelated=True
+        no_unrelated=(config.model != "SimNet"),
+        related_task=(config.model == "SimNet"),
     )
     dataset_size = len(dataset)
     dataset_indices = list(range(dataset_size))
@@ -153,13 +153,20 @@ def main():
         ).to(DEVICE)
     elif (config.model == "AgreemNetDeepPlus"):
         model = AgreemNetDeepPlus(
+            kk=config.top_k,
+            hdim_1=config.hidden_dims_A,
+            hdim_2=config.hidden_dims_B,
+        ).to(DEVICE)
+    elif (config.model == "SimNet"):
+        model = SimNet(
+            kk=config.top_k,
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
         ).to(DEVICE)
     else:
         assert False # Shouldn't get here
 
-    loss_fn = nn.CrossEntropyLoss(weight=torch.Tensor([1,1,1]))
+    loss_fn = nn.CrossEntropyLoss() # TODO weights
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
     trained_model = train_model(
