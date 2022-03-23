@@ -13,7 +13,9 @@ class AgreemNet(nn.Module):
         super(AgreemNet, self).__init__()
         self.dropout = dropout
         self.num_classes = num_classes
-        self.attention_heads = [torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1) for _ in range(num_heads)]
+        self.attention_heads = nn.ModuleList(
+            [torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1) for _ in range(num_heads)]
+        )
         self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
         
         self.fc1 = torch.nn.Linear((SIM_DIM * (num_heads + 1)) + num_heads, hdim_1)
