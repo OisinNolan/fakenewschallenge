@@ -9,12 +9,12 @@ DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 SIM_SCALAR = 50
 
 class AgreemNet(nn.Module):
-    def __init__(self, hdim_1=1024, hdim_2=512, dropout=0.7, num_classes=3, num_heads=5):
+    def __init__(self, hdim_1=1024, hdim_2=512, dropout=0.2, num_classes=3, num_heads=5):
         super(AgreemNet, self).__init__()
         self.dropout = dropout
         self.num_classes = num_classes
         self.attention_heads = nn.ModuleList(
-            [torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1) for _ in range(num_heads)]
+            [torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1, batch_first=True, dropout=dropout) for _ in range(num_heads)]
         )
         self.reduce_head = torch.nn.Linear(NLI_DIM, SIM_DIM)
         
@@ -24,15 +24,8 @@ class AgreemNet(nn.Module):
         self.fc4 = torch.nn.Linear(hdim_2, num_classes)
 
     def forward(self, H_sims, H_nlis, B_sims, B_nlis):
-        batch_size = B_sims.shape[0]
-        sent_len = B_sims.shape[1]
-        
         # Attention layer
-        attn_outs = [attention(
-            H_sims.view(1, batch_size, SIM_DIM),
-            B_sims.view(sent_len, batch_size, SIM_DIM),
-            B_nlis.view(sent_len, batch_size, NLI_DIM),
-        )[0] for attention in self.attention_heads]
+        attn_outs = [attention(H_sims.unsqueeze(1), B_sims, B_nlis,)[0] for attention in self.attention_heads]
         attn_outs = torch.stack(attn_outs).squeeze() # convert list to tensor
         flattened_attn_outs = torch.cat(attn_outs.split(1), dim=-1).squeeze()
 
