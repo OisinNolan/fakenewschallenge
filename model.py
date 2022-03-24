@@ -100,9 +100,10 @@ class TopKNet(nn.Module):
         return logits
 
 class RelatedNet(nn.Module):
-    def __init__(self, kk=5, hdim_1=1024, hdim_2=512, num_classes=2):
+    def __init__(self, kk=5, hdim_1=1024, hdim_2=512, dropout=0.2, num_classes=2):
         super(RelatedNet, self).__init__()
         self.kk = kk
+        self.dropout = dropout
         self.num_classes = num_classes
         self.fc1 = torch.nn.Linear((kk + 1) * SIM_DIM, hdim_1)
         self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
@@ -136,16 +137,16 @@ class RelatedNet(nn.Module):
         xx = torch.hstack([sim_stance_emb, sim_body_emb_top_k_flat])
         
         xx = self.fc1(xx)
-        xx = F.dropout(xx, p=0.5)
+        xx = F.dropout(xx, p=self.dropout)
         xx = F.relu(xx)
         xx = self.fc2(xx)
-        xx = F.dropout(xx, p=0.5)
+        xx = F.dropout(xx, p=self.dropout)
         xx = F.relu(xx)
         xx = self.fc3(xx)
-        xx = F.dropout(xx, p=0.5)
+        xx = F.dropout(xx, p=self.dropout)
         xx = F.relu(xx)
         xx = self.fc4(xx)
-        xx = F.dropout(xx, p=0.5)
+        xx = F.dropout(xx, p=self.dropout)
         xx = F.relu(xx)
         logits = self.fc5(xx)
 

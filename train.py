@@ -154,6 +154,7 @@ def main():
             kk=config.top_k,
             hdim_1=config.hidden_dims_A,
             hdim_2=config.hidden_dims_B,
+            dropout=config.dropout,
         ).to(DEVICE)
     else:
         assert False # Shouldn't get here
