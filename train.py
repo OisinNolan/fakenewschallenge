@@ -29,7 +29,7 @@ def train_model(model: nn.Module, dataloaders: Dict[str, DataLoader], loss_fn, o
 
     for epoch in range(num_epochs):   
         with tqdm(
-            total= math.ceil(len(dataloaders["train"].dataset) / dataloaders["train"].batch_size),
+            total=len(dataloaders["train"]) + len(dataloaders["val"]),
             bar_format="{l_bar}{bar:20}{r_bar}{bar:-10b}"
         ) as pbar:
             for phase in ["train", "val"]:               
