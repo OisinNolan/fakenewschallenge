@@ -26,14 +26,15 @@ class AgreemNet(nn.Module):
     def forward(self, H_sims, H_nlis, B_sims, B_nlis):
         # Attention layer
         attn_outs = [attention(H_sims.unsqueeze(1), B_sims, B_nlis,)[0] for attention in self.attention_heads]
-        attn_outs = torch.stack(attn_outs).squeeze() # convert list to tensor
-        flattened_attn_outs = torch.cat(attn_outs.split(1), dim=-1).squeeze()
+        attn_outs = torch.stack(attn_outs).squeeze(2) # convert list to tensor
+        flattened_attn_outs = torch.cat(attn_outs.split(1), dim=-1)
+        flattened_attn_outs = flattened_attn_outs.squeeze(0)
 
         # Linear transform head_nli to be same dimension as attn_out
         reduced_head = self.reduce_head(H_nlis)
         cosines = F.cosine_similarity(reduced_head, attn_outs, dim=2).transpose(0, 1)
         xx = torch.cat((flattened_attn_outs, reduced_head, cosines), dim=1)
-        
+
         xx = self.fc1(xx)
         xx = self.dropout(xx)
         xx = F.relu(xx)
