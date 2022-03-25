@@ -11,7 +11,7 @@ SIM_SCALAR = 50
 class AgreemNet(nn.Module):
     def __init__(self, hdim_1=1024, hdim_2=512, dropout=0.2, num_classes=3, num_heads=5):
         super(AgreemNet, self).__init__()
-        self.dropout = dropout
+        self.dropout = nn.Dropout(p=dropout)
         self.num_classes = num_classes
         self.attention_heads = nn.ModuleList(
             [torch.nn.MultiheadAttention(embed_dim=SIM_DIM, vdim=NLI_DIM, num_heads=1, batch_first=True, dropout=dropout) for _ in range(num_heads)]
@@ -35,13 +35,13 @@ class AgreemNet(nn.Module):
         xx = torch.cat((flattened_attn_outs, reduced_head, cosines), dim=1)
         
         xx = self.fc1(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc2(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc3(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         logits = self.fc4(xx)
         
@@ -52,12 +52,14 @@ class TopKNet(nn.Module):
         super(TopKNet, self).__init__()
         self.kk = kk
         self.num_classes = num_classes
-        self.dropout = dropout
+
         self.fc1 = torch.nn.Linear((kk + 1) * NLI_DIM, hdim_1)
         self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
         self.fc3 = torch.nn.Linear(hdim_1, hdim_1)
         self.fc4 = torch.nn.Linear(hdim_1, hdim_2)
         self.fc5 = torch.nn.Linear(hdim_2, num_classes)
+
+        self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, sim_stance_emb, nli_stance_emb, sim_body_emb, nli_body_emb):
         '''
@@ -84,16 +86,16 @@ class TopKNet(nn.Module):
         xx = torch.hstack([nli_stance_emb, nli_body_emb_top_k_flat])
         
         xx = self.fc1(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc2(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc3(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc4(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         logits = self.fc5(xx)
 
@@ -103,13 +105,15 @@ class RelatedNet(nn.Module):
     def __init__(self, kk=5, hdim_1=1024, hdim_2=512, dropout=0.2, num_classes=2):
         super(RelatedNet, self).__init__()
         self.kk = kk
-        self.dropout = dropout
+
         self.num_classes = num_classes
         self.fc1 = torch.nn.Linear((kk + 1) * SIM_DIM, hdim_1)
         self.fc2 = torch.nn.Linear(hdim_1, hdim_1)
         self.fc3 = torch.nn.Linear(hdim_1, hdim_1)
         self.fc4 = torch.nn.Linear(hdim_1, hdim_2)
         self.fc5 = torch.nn.Linear(hdim_2, num_classes)
+
+        self.dropout = nn.Dropout(p=dropout)
 
     def forward(self, sim_stance_emb, nli_stance_emb, sim_body_emb, nli_body_emb):
         '''
@@ -137,16 +141,16 @@ class RelatedNet(nn.Module):
         xx = torch.hstack([sim_stance_emb, sim_body_emb_top_k_flat])
         
         xx = self.fc1(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc2(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc3(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         xx = self.fc4(xx)
-        xx = F.dropout(xx, p=self.dropout)
+        xx = self.dropout(xx)
         xx = F.relu(xx)
         logits = self.fc5(xx)
 
