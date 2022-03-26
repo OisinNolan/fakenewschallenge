@@ -42,8 +42,7 @@ with tqdm(train_dataloader) as pbar:
         embeddings = [_embedding.to(DEVICE) for _embedding in embeddings]
         stance = stance.to(DEVICE)
         logits = trained_model(*embeddings)
-        pred = F.softmax(logits, dim=1)
-        pred_stance = torch.max(pred,dim=1).indices
+        pred_stance = torch.max(logits,dim=1).indices
         for ss, pp in zip(stance, pred_stance):
             class_correct[ss] += 1 if (ss == pp) else 0
             class_total[ss] += 1
