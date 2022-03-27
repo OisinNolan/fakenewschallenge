@@ -109,7 +109,7 @@ with open('./data/train_stances.csv') as infile:
             try:
                 negated = attempt_negation(row[HEAD])
                 if negated:
-                    row[HEAD] = negated
+                    row[HEAD] = f'"{negated}"'
                     row[STANCE] = 'disagree' if row[STANCE] == 'agree' else 'agree'
                     print(','.join(row))
             except:
