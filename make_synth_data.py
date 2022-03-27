@@ -9,6 +9,7 @@ import numpy as np
 scorer = AutoLMScorer.from_pretrained("distilgpt2")
 import csv
 import mlconjug3
+from tqdm import tqdm
 conjugator = mlconjug3.Conjugator(language='en')
 # Must be running coreNLP server locally, 
 # see: https://stanfordnlp.github.io/CoreNLP/corenlp-server.html#getting-started
@@ -63,7 +64,7 @@ def find_not(deps):
 def attempt_negation(sent):
     parse, = dep_parser.raw_parse(sent)
     deps = parse.to_conll(4)
-    root, root_idx = find_root(sent, deps)
+    root, root_idx = find_root(deps)
     tokens = word_tokenize(sent)
 
     not_id = find_not(deps)
@@ -102,8 +103,15 @@ Notes:
 '''
 
 # Read training stances
-with open('./data/combined_stances_train.csv') as f:
-    for i, row in enumerate(csv.reader(f)):
-        negated = attempt_negation(row[HEAD])
-        if negated:
-            print(f'\n{i}: \nbefore: {row[HEAD]}\nafter: {negated} \n')
+with open('./data/train_stances.csv') as infile:
+    for i, row in enumerate(csv.reader(infile)):
+        if row[STANCE] == 'agree' or row[STANCE] == 'disagree':
+            try:
+                negated = attempt_negation(row[HEAD])
+                if negated:
+                    row[HEAD] = negated
+                    row[STANCE] = 'disagree' if row[STANCE] == 'agree' else 'agree'
+                    print(','.join(row))
+            except:
+                print('skipped')
+
