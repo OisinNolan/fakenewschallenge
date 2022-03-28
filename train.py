@@ -132,7 +132,7 @@ def main():
         related_task=(config.model == "RelatedNet"),
     )
 
-    train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size,)
+    train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size)
     val_dataloader = DataLoader(val_dataset, batch_size=config.batch_size)
 
     model = ...
