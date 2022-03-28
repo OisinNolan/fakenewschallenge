@@ -118,21 +118,22 @@ def main():
     config = wandb.config
     print(f"Config: {config}")
 
-    dataset = FakeNewsEncodedDataset(
-        stances_file="data/train_stances.csv.stance.dat",
+    train_dataset = FakeNewsEncodedDataset(
+        stances_file="data/train_stances.newsplit.csv.stance.dat",
         bodies_file="data/train_bodies.csv.body.dat",
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),
     )
-    dataset_size = len(dataset)
-    dataset_indices = list(range(dataset_size))
-    cutoff = math.floor(dataset_size * VAL_CUTOFF)
 
-    train_sampler = SubsetRandomSampler(dataset_indices[:cutoff])
-    val_sampler = SubsetRandomSampler(dataset_indices[cutoff:])
+    val_dataset = FakeNewsEncodedDataset(
+        stances_file="data/val_stances.newsplit.csv.stance.dat",
+        bodies_file="data/train_bodies.csv.body.dat",
+        no_unrelated=(config.model != "RelatedNet"),
+        related_task=(config.model == "RelatedNet"),
+    )
 
-    train_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=train_sampler)
-    val_dataloader = DataLoader(dataset, batch_size=config.batch_size, sampler=val_sampler)
+    train_dataloader = DataLoader(train_dataset, batch_size=config.batch_size,)
+    val_dataloader = DataLoader(val_dataset, batch_size=config.batch_size)
 
     model = ...
     if (config.model == "TopKNet"):
