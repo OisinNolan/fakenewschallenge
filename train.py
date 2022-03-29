@@ -119,7 +119,7 @@ def main():
     print(f"Config: {config}")
 
     dataset = FakeNewsEncodedDataset(
-        stances_file="data/train_stances.csv.stance.dat",
+        stance_files=["data/train_stances.csv.stance.dat"],
         bodies_file="data/train_bodies.csv.body.dat",
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),
