@@ -118,15 +118,15 @@ def main():
     config = wandb.config
     print(f"Config: {config}")
 
-    dataset = FakeNewsEncodedDataset(
-        stance_files=["data/train_stances.csv.stance.dat"],
+    train_dataset = FakeNewsEncodedDataset(
+        stances_files=["data/train_stances.csv.stance.dat", "data/train_stances.neg_synth.csv.stance.dat"],
         bodies_file="data/train_bodies.csv.body.dat",
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),
     )
 
     val_dataset = FakeNewsEncodedDataset(
-        stances_file="data/val_stances.newsplit.csv.stance.dat",
+        stances_files=["data/val_stances.newsplit.csv.stance.dat"],
         bodies_file="data/train_bodies.csv.body.dat",
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),

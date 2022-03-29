@@ -84,7 +84,7 @@ def create_parser() -> ArgumentParser:
         "-d",
         "--dropout",
         type=float,
-        default=0.7,
+        default=0.2,
         help="Dropout probability",
     )
 

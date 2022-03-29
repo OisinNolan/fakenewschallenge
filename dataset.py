@@ -43,14 +43,14 @@ class FakeNewsDataset(Dataset):
         return (headline, body), STANCE_MAP[stance]
 
 class FakeNewsEncodedDataset(Dataset):
-    def __init__(self, stance_files, bodies_file, no_unrelated=False, related_task=False):
+    def __init__(self, stances_files, bodies_file, no_unrelated=False, related_task=False):
         self.stances = []
         self.sim_bodies = {}
         self.nli_bodies = {}
         self.related_task = related_task
         
-        for stance_file in stance_files:
-            with open(stance_file, "rb") as sf:
+        for stances_file in stances_files:
+            with open(stances_file, "rb") as sf:
                 completed_read = False
                 while not completed_read:
                     try:
