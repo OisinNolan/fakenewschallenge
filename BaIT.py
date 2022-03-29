@@ -21,7 +21,7 @@ trained_agreemnet = AgreemNet(
 
 trained_agreemnet.to(DEVICE)
 trained_agreemnet.load_state_dict(
-    torch.load("trained_models/AgreemNet.pth", map_location=DEVICE)
+    torch.load("trained_models/AgreemNet_neg_synth.pth", map_location=DEVICE)
 )
 trained_agreemnet.eval()
 torchinfo.summary(trained_agreemnet)
@@ -59,7 +59,7 @@ torchinfo.summary(trained_topknet)
 
 # Load in the *test* dataset
 dataset = FakeNewsEncodedDataset(
-    stances_file="data/test_stances.csv.stance.dat",
+    stances_files=["data/test_stances.csv.stance.dat"],
     bodies_file="data/test_bodies.csv.body.dat",
 )
 dataloader = DataLoader(dataset, batch_size=1) # Can only do Batch Size of 1
@@ -68,7 +68,8 @@ dataloader = DataLoader(dataset, batch_size=1) # Can only do Batch Size of 1
 class_correct = np.zeros(CLASSES)
 class_total = np.zeros(CLASSES)
 
-MODEL = "BAIT_TOPK" #"BAIT_AGREEMNET"
+# MODEL = "BAIT_TOPK"
+MODEL = "BAIT_AGREEMNET"
 
 with tqdm(dataloader) as pbar:
     for (embeddings, stance) in pbar:
