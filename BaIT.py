@@ -16,7 +16,7 @@ CLASSES = 4
 trained_agreemnet = AgreemNet(
     hdim_1=60,
     hdim_2=20,
-    num_heads=8,
+    num_heads=11,
 )
 
 trained_agreemnet.to(DEVICE)
@@ -31,7 +31,7 @@ torchinfo.summary(trained_agreemnet)
 trained_topknet = TopKNet(
     hdim_1=60,
     hdim_2=60,
-    kk=8,
+    kk=3,
 )
 
 trained_topknet.to(DEVICE)
@@ -45,8 +45,8 @@ torchinfo.summary(trained_topknet)
 # ---------- RELATEDNET ---------- #
 trained_relatednet = RelatedNet(
     hdim_1=60,
-    hdim_2=60,
-    kk=9,
+    hdim_2=40,
+    kk=6,
 )
 
 trained_relatednet.to(DEVICE)
