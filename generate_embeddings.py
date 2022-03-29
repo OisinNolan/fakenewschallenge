@@ -60,7 +60,14 @@ def main():
     )
     
     process_file(
-        filename="data/train_stances.csv",
+        filename="data/train_stances.newsplit.csv",
+        sim_encoder=sim_encoder,
+        nli_encoder=nli_encoder,
+        type="stance",
+    )
+    
+    process_file(
+        filename="data/val_stances.newsplit.csv",
         sim_encoder=sim_encoder,
         nli_encoder=nli_encoder,
         type="stance",

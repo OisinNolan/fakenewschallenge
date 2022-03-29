@@ -129,7 +129,7 @@ class RelatedNet(nn.Module):
         sims = torch.bmm(
             sim_stance_emb.unsqueeze(1),
             torch.transpose(sim_body_emb,1,2)
-        ).squeeze()
+        ).squeeze(dim=1)
 
         top_k = torch.topk(sims,k=self.kk,dim=1)
 
