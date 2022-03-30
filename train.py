@@ -205,7 +205,7 @@ def main():
     )
 
     print(f"Saving trained model with class averages: {[np.round(ca * 100,1) for ca in trained_class_avgs]}")
-    save_model(model=trained_model, name=config.model)
+    save_model(model=trained_model, name=config.filename if (config.filename is not None) else config.model)
 
 if __name__ == "__main__":
     main()

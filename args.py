@@ -112,6 +112,14 @@ def create_parser() -> ArgumentParser:
         help="Use synthetic negative samples."
     )
 
+    parser.add_argument(
+        "-f",
+        "--filename",
+        type=str,
+        default=None,
+        help="Name of saved trained model."
+    )
+
     return parser
 
 def main(): # For debugging
