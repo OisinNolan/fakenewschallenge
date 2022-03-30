@@ -162,7 +162,15 @@ def main():
 
     torchinfo.summary(model)
 
-    class_weights = torch.Tensor([1.20017873, 5.86462882, 0.50093249]) # See ./analysis/data_summary.ipynb for details
+    class_weights = ...
+    if (config.model != "RelatedNet"):
+        if (config.use_class_weights):
+            class_weights = torch.Tensor([1.20017873, 5.86462882, 0.50093249]) # See ./analysis/data_summary.ipynb for details
+        else:
+            class_weights = torch.ones(3)
+    else:
+        class_weights = torch.ones(2)
+
     loss_fn = nn.CrossEntropyLoss(weight=class_weights) 
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
