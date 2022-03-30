@@ -7,11 +7,17 @@ from torch.utils.data import DataLoader
 import numpy as np
 from tqdm import tqdm
 from sklearn.metrics import confusion_matrix
+from argparse import ArgumentParser
 
 DEVICE = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 SIM_DIM = 384
 NLI_DIM = 768
 CLASSES = 4
+parser = ArgumentParser()
+parser.add_argument("-a", "--AgreemNet", type=str, default="AgreemNet",)
+parser.add_argument("-t", "--TopKNet", type=str, default="TopKNet",)
+parser.add_argument("-r", "--RelatedNet", type=str, default="RelatedNet",)
+model_names = parser.parse_args()
 
 def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass all config as params
     '''
@@ -26,7 +32,7 @@ def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass al
 
     trained_agreemnet.to(DEVICE)
     trained_agreemnet.load_state_dict(
-        torch.load("trained_models/AgreemNet.pth", map_location=DEVICE)
+        torch.load(f"trained_models/{model_names.AgreemNet}.pth", map_location=DEVICE)
     )
     trained_agreemnet.eval()
     if (show_model_summarys):
@@ -42,7 +48,7 @@ def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass al
 
     trained_topknet.to(DEVICE)
     trained_topknet.load_state_dict(
-        torch.load("trained_models/TopKNet.pth", map_location=DEVICE)
+        torch.load(f"trained_models/{model_names.TopKNet}.pth", map_location=DEVICE)
     )
     trained_topknet.eval()
     if (show_model_summarys):
@@ -58,7 +64,7 @@ def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass al
 
     trained_relatednet.to(DEVICE)
     trained_relatednet.load_state_dict(
-        torch.load("trained_models/RelatedNet.pth", map_location=DEVICE)
+        torch.load(f"trained_models/{model_names.RelatedNet}.pth", map_location=DEVICE)
     )
     trained_relatednet.eval()
     if (show_model_summarys):
