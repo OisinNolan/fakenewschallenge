@@ -124,7 +124,7 @@ def main():
         stances_files_paths = [
             "data/arc/combined_stances_train.csv.stance.dat",
         ]
-        bodies_file_path = "data/arc/combined_bodies_train.csv.body.dat",
+        bodies_file_path = "data/arc/combined_bodies_train.csv.body.dat"
     else: # Use FNC
         stances_files_paths = [
             "data/train_stances.newsplit.csv.stance.dat",
