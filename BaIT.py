@@ -13,7 +13,7 @@ SIM_DIM = 384
 NLI_DIM = 768
 CLASSES = 4
 
-def run_bait(BAIT="BAIT_AGREEMNET"): # Should pass all config as params
+def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass all config as params
     '''
     BAIT = BAIT_AGREEMNET or BAIT_TOPK
     '''
@@ -29,7 +29,8 @@ def run_bait(BAIT="BAIT_AGREEMNET"): # Should pass all config as params
         torch.load("trained_models/AgreemNet.pth", map_location=DEVICE)
     )
     trained_agreemnet.eval()
-    torchinfo.summary(trained_agreemnet)
+    if (show_model_summarys):
+        torchinfo.summary(trained_agreemnet)
     # ----------_----------_---------- #
 
     # ---------- TOPKNET ---------- #
@@ -44,7 +45,8 @@ def run_bait(BAIT="BAIT_AGREEMNET"): # Should pass all config as params
         torch.load("trained_models/TopKNet.pth", map_location=DEVICE)
     )
     trained_topknet.eval()
-    torchinfo.summary(trained_topknet)
+    if (show_model_summarys):
+        torchinfo.summary(trained_topknet)
     # ----------_-------_---------- #
 
     # ---------- RELATEDNET ---------- #
@@ -59,7 +61,8 @@ def run_bait(BAIT="BAIT_AGREEMNET"): # Should pass all config as params
         torch.load("trained_models/RelatedNet.pth", map_location=DEVICE)
     )
     trained_relatednet.eval()
-    torchinfo.summary(trained_relatednet)
+    if (show_model_summarys):
+        torchinfo.summary(trained_relatednet)
     # ----------_----------_---------- #
 
     # Load in the *test* dataset
@@ -143,26 +146,33 @@ def raw_score(stance_preds, stance_trues):
     return class_correct, class_total
 
 def main():
+    # RelatedNet + AgreemNet
     stance_preds, stance_trues = run_bait("BAIT_AGREEMNET")
-    print(stance_preds)
-    print(stance_trues)
-
-    print("-"*50)
-    print("Raw scores:")
-    class_correct, class_total = raw_score(stance_preds, stance_trues)
-    class_avgs = class_correct / class_total
-    print(f"Class correct:\t\t{class_correct}")
-    print(f"Class total:\t\t{class_total}")
-    print(f"Class avgs:\t\t{[np.round(ca * 100,1) for ca in class_avgs]} | Avg: {np.mean(class_avgs)}")
-    print("-"*50)
-
-    print("FNC score:")
-    print(FNC_score(stance_preds, stance_trues))
-    print("-"*50)
-
     print("Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
     print("-"*50)
+    # print(stance_preds)
+    # print(stance_trues)
+
+    # print("-"*50)
+    # print("Raw scores:")
+    # class_correct, class_total = raw_score(stance_preds, stance_trues)
+    # class_avgs = class_correct / class_total
+    # print(f"Class correct:\t\t{class_correct}")
+    # print(f"Class total:\t\t{class_total}")
+    # print(f"Class avgs:\t\t{[np.round(ca * 100,1) for ca in class_avgs]} | Avg: {np.mean(class_avgs)}")
+    # print("-"*50)
+
+    # print("FNC score:")
+    # print(FNC_score(stance_preds, stance_trues))
+    # print("-"*50)
+
+    # RelatedNet + AgreemNet
+    stance_preds, stance_trues = run_bait("BAIT_TOPK")
+    print("Confusion Matrix:")
+    print(confusion_matrix(stance_trues, stance_preds))
+    print("-"*50)
+
 
 if __name__ == "__main__":
     main()
