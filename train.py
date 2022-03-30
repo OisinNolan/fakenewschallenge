@@ -118,9 +118,28 @@ def main():
     config = wandb.config
     print(f"Config: {config}")
 
+    stances_files_paths = ...
+    bodies_file_path = ...
+    if (config.train_with_arc): # Use ARC
+        stances_files_paths = [
+            "data/arc/combined_stances_train.csv.stance.dat",
+        ]
+        bodies_file_path = "data/arc/combined_bodies_train.csv.body.dat",
+    else: # Use FNC
+        stances_files_paths = [
+            "data/train_stances.newsplit.csv.stance.dat",
+            "data/val_stances.newsplit.csv.stance.dat",
+        ]
+        bodies_file_path = "data/train_bodies.csv.body.dat"
+    
+    if (config.use_synth_data):
+        stances_files_paths.append(
+            "data/train_stances.neg_synth.csv.stance.dat"
+        )
+
     train_dataset = FakeNewsEncodedDataset(
-        stances_files=["data/train_stances.newsplit.csv.stance.dat", "data/val_stances.newsplit.csv.stance.dat"],
-        bodies_file="data/train_bodies.csv.body.dat",
+        stances_files=stances_files_paths,
+        bodies_file=bodies_file_path,
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),
     )

@@ -93,7 +93,23 @@ def create_parser() -> ArgumentParser:
         "--use_class_weights",
         type=bool,
         default=False,
-        help="Weight cross entropy loss by the class counts."
+        help="Weight cross entropy loss by the class counts (for 'Related' classifications)."
+    )
+
+    parser.add_argument(
+        "-arc",
+        "--train_with_arc",
+        type=bool,
+        default=False,
+        help="Train using the ARC dataset."
+    )
+
+    parser.add_argument(
+        "-synth",
+        "--use_synth_data",
+        type=bool,
+        default=False,
+        help="Use synthetic negative samples."
     )
 
     return parser
