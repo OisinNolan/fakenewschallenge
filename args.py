@@ -88,6 +88,14 @@ def create_parser() -> ArgumentParser:
         help="Dropout probability",
     )
 
+    parser.add_argument(
+        "-cw",
+        "--use_class_weights",
+        type=bool,
+        default=False,
+        help="Weight cross entropy loss by the class counts."
+    )
+
     return parser
 
 def main(): # For debugging
