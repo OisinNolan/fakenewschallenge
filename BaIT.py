@@ -21,7 +21,7 @@ trained_agreemnet = AgreemNet(
 
 trained_agreemnet.to(DEVICE)
 trained_agreemnet.load_state_dict(
-    torch.load("trained_models/AgreemNet_neg_synth.pth", map_location=DEVICE)
+    torch.load("trained_models/AgreemNet.pth", map_location=DEVICE)
 )
 trained_agreemnet.eval()
 torchinfo.summary(trained_agreemnet)
@@ -65,6 +65,7 @@ dataset = FakeNewsEncodedDataset(
 dataloader = DataLoader(dataset, batch_size=1) # Can only do Batch Size of 1
 
 # Scores
+class_correct_related = 0
 class_correct = np.zeros(CLASSES)
 class_total = np.zeros(CLASSES)
 
@@ -95,6 +96,11 @@ with tqdm(dataloader) as pbar:
                 agreemnet_pred = torch.max(agreemnet_logits,dim=1).indices
                 pred_stance = agreemnet_pred
 
+        class_correct_related += (
+            0 if pred_stance == STANCE_MAP["unrelated"] and stance != STANCE_MAP["unrelated"]
+            else 1
+        )
+
         class_correct[stance] += 1 if (stance == pred_stance) else 0
         class_total[stance] += 1
 
@@ -107,3 +113,4 @@ print("Class correct:\t\t", class_correct)
 print("Class total:\t\t", class_total)
 print(f"Class avgs:\t\t {[np.round(ca * 100,1) for ca in class_avgs]}")
 print(f"Overall score:\t\t {overall_score:>.1f}%")
+print(f'Related task accuracy:\t\t {(class_correct_related / 25418)}')

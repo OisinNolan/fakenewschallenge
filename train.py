@@ -119,7 +119,7 @@ def main():
     print(f"Config: {config}")
 
     train_dataset = FakeNewsEncodedDataset(
-        stances_files=["data/train_stances.csv.stance.dat"],
+        stances_files=["data/train_stances.newsplit.csv.stance.dat", "data/val_stances.newsplit.csv.stance.dat"],
         bodies_file="data/train_bodies.csv.body.dat",
         no_unrelated=(config.model != "RelatedNet"),
         related_task=(config.model == "RelatedNet"),
@@ -162,7 +162,8 @@ def main():
 
     torchinfo.summary(model)
 
-    loss_fn = nn.CrossEntropyLoss(weight=torch.Tensor([1, 1.2, 1])) # TODO weights
+    class_weights = torch.Tensor([1.20017873, 5.86462882, 0.50093249]) # See ./analysis/data_summary.ipynb for details
+    loss_fn = nn.CrossEntropyLoss(weight=class_weights) 
     optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
 
     trained_model, trained_class_avgs = train_model(
