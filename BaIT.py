@@ -44,9 +44,9 @@ torchinfo.summary(trained_topknet)
 
 # ---------- RELATEDNET ---------- #
 trained_relatednet = RelatedNet(
-    hdim_1=60,
-    hdim_2=40,
-    kk=6,
+    hdim_1=600,
+    hdim_2=600,
+    kk=4,
 )
 
 trained_relatednet.to(DEVICE)
