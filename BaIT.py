@@ -142,6 +142,17 @@ def FNC_score(stance_preds, stance_trues):
 
     return fnc
 
+def FNC_score_actual(stance_preds, stance_trues):
+    score = 0
+    for pred, stance in zip(stance_preds, stance_trues):
+        if pred == stance:
+            score += 0.25
+            if stance != STANCE_MAP["unrelated"]:
+                score += 0.50
+        if stance < STANCE_MAP["unrelated"] and pred < STANCE_MAP["unrelated"]:
+            score += 0.25
+    return score
+
 def raw_score(stance_preds, stance_trues):
     class_correct = np.zeros(4)
     class_total = np.zeros(4)
@@ -156,27 +167,16 @@ def main():
     stance_preds, stance_trues = run_bait("BAIT_AGREEMNET")
     print("BAIT_AGREEMNET - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
+    
+    print(f"FNC score:\t\t{FNC_score_actual(stance_trues, stance_preds)}")
     print("-"*50)
-    # print(stance_preds)
-    # print(stance_trues)
-
-    # print("-"*50)
-    # print("Raw scores:")
-    # class_correct, class_total = raw_score(stance_preds, stance_trues)
-    # class_avgs = class_correct / class_total
-    # print(f"Class correct:\t\t{class_correct}")
-    # print(f"Class total:\t\t{class_total}")
-    # print(f"Class avgs:\t\t{[np.round(ca * 100,1) for ca in class_avgs]} | Avg: {np.mean(class_avgs)}")
-    # print("-"*50)
-
-    # print("FNC score:")
-    # print(FNC_score(stance_preds, stance_trues))
-    # print("-"*50)
-
+    
     # RelatedNet + AgreemNet
     stance_preds, stance_trues = run_bait("BAIT_TOPK")
     print("BAIT_TOPK - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
+
+    print(f"FNC score:\t\t{FNC_score_actual(stance_trues, stance_preds)}")
     print("-"*50)
 
 
