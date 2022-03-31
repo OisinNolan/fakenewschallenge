@@ -154,7 +154,7 @@ def raw_score(stance_preds, stance_trues):
 def main():
     # RelatedNet + AgreemNet
     stance_preds, stance_trues = run_bait("BAIT_AGREEMNET")
-    print("Confusion Matrix:")
+    print("BAIT_AGREEMNET - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
     print("-"*50)
     # print(stance_preds)
@@ -175,7 +175,7 @@ def main():
 
     # RelatedNet + AgreemNet
     stance_preds, stance_trues = run_bait("BAIT_TOPK")
-    print("Confusion Matrix:")
+    print("BAIT_TOPK - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
     print("-"*50)
 
