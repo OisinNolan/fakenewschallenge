@@ -110,39 +110,7 @@ def run_bait(BAIT="BAIT_AGREEMNET", show_model_summarys=False): # Should pass al
     
     return stance_preds, stance_trues
 
-def FNC_score(stance_preds, stance_trues):
-    '''
-    Defined as 25% x Unrelated accuracy + 75% x Related Accuracy
-
-    TODO : @callum - I think I am misunderstanding something simple here!!
-            --> getting same results as raw score??
-
-    '''
-    unrelated_task_correct = 0
-    unrelated_task_count = 0
-
-    related_task_corrects = np.zeros(3)
-    related_task_counts = np.zeros(3)
-
-    for pred, stance in zip(stance_preds, stance_trues):
-        
-        if stance == STANCE_MAP["unrelated"]: # Unrelated task
-            unrelated_task_count += 1
-            if (stance == pred):
-                unrelated_task_correct += 1
-        else: # Related task
-            related_task_counts[int(stance)] += 1
-            if (stance == pred):
-                related_task_corrects[int(stance)] += 1
-    
-    unrelated_acc = unrelated_task_correct / unrelated_task_count
-    related_acc = np.mean( related_task_corrects / related_task_counts ) # *Unweighted* by class size
-
-    fnc = 0.25 * unrelated_acc + 0.75 * related_acc
-
-    return fnc
-
-def FNC_score_actual(stance_preds, stance_trues):
+def FNC_score_unnorm(stance_preds, stance_trues):
     score = 0
     for pred, stance in zip(stance_preds, stance_trues):
         if pred == stance:
@@ -168,7 +136,7 @@ def main():
     print("BAIT_AGREEMNET - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
     
-    print(f"FNC score:\t\t{FNC_score_actual(stance_trues, stance_preds)}")
+    print(f"Unnorm FNC score:\t\t{FNC_score_unnorm(stance_trues, stance_preds)}")
     print("-"*50)
     
     # RelatedNet + AgreemNet
@@ -176,7 +144,7 @@ def main():
     print("BAIT_TOPK - Confusion Matrix:")
     print(confusion_matrix(stance_trues, stance_preds))
 
-    print(f"FNC score:\t\t{FNC_score_actual(stance_trues, stance_preds)}")
+    print(f"Unnorm FNC score:\t\t{FNC_score_unnorm(stance_trues, stance_preds)}")
     print("-"*50)
 
 
